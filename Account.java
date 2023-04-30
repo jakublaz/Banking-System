@@ -1,12 +1,15 @@
 public class Account {
     private final int ID;
     private double money;
-    private static int number=0;
 
-    public  Account(){
-        this.ID = number+1;
-        number++;
+    public  Account(int ID){
+        this.ID = ID;
         money=0;
+    }
+
+    public void PrintDetails(){
+        System.out.println("ID : " + ID);
+        System.out.println("Money : " + money);
     }
 
     public int GetID(){
@@ -20,4 +23,5 @@ public class Account {
     public double GetMoney(){
         return this.money;
     }
+
 }

@@ -28,11 +28,25 @@ public class User {
         accounts = new ArrayList<>();
     }
 
-    public void Print() {
+    public void PrintUser() {
         System.out.println("Name: " + this.name);
         System.out.println("Surname: " + this.surname);
         System.out.println("Age: " + this.age);
         System.out.println("Money: " + this.money);
+    }
+
+    public void PrintAccount(int ID) {
+        for (Account account : accounts) {
+            if (account.GetID() == ID) {
+                account.PrintDetails();
+            }
+        }
+    }
+
+    public void PrintAccounts() {
+        for (Account account : accounts) {
+            account.PrintDetails();
+        }
     }
 
     public void SetMoney(double money) {
@@ -59,10 +73,13 @@ public class User {
         return this.surname;
     }
 
-    public int AddAccount(){
-        Account account = new Account();
+    public boolean AddAccount(int ID) {
+        if(FindAccount(ID) != null){
+            return false;
+        }
+        Account account = new Account(ID);
         accounts.add(account);
-        return account.GetID();
+        return true;
     }
 
     private @Nullable Account FindAccount(int ID) {
@@ -74,16 +91,55 @@ public class User {
         return null;
     }
 
-    public boolean TransferMoney(int ID, double money) {
+    public boolean TransferMoney_ToAccount(int ID, double money) {
         if (this.money < money) {
             return false;
         }
-        if(FindAccount(ID) == null){
+        if (FindAccount(ID) == null) {
             return false;
         }
         this.money -= money;
-        Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney()+money);
+        Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney() + money);
         return true;
     }
 
+    private boolean TransferMoney_ToUser(int ID, double money) {
+        if (FindAccount(ID) == null) {
+            return false;
+        }
+        if (Objects.requireNonNull(FindAccount(ID)).GetMoney() < money) {
+            return false;
+        }
+        this.money += money;
+        Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney() - money);
+        return true;
+    }
+
+    //The first one ID means from where we want to transfer money and the second one means where we want to transfer money
+    public boolean TransferMoney_BetweenAccounts(int ID, int ID2, double money) {
+        if (FindAccount(ID) == null) {
+            return false;
+        }
+        if (FindAccount(ID2) == null) {
+            return false;
+        }
+        if (Objects.requireNonNull(FindAccount(ID)).GetMoney() < money) {
+            return false;
+        }
+        Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney() - money);
+        Objects.requireNonNull(FindAccount(ID2)).SetMoney(Objects.requireNonNull(FindAccount(ID2)).GetMoney() + money);
+        return true;
+    }
+
+    public boolean CloseAccount(int ID){
+        if(FindAccount(ID) == null){
+            return false;
+        }
+        if(Objects.requireNonNull(FindAccount(ID)).GetMoney() != 0){
+            TransferMoney_ToUser(ID, Objects.requireNonNull(FindAccount(ID)).GetMoney());
+        }
+        accounts.remove(FindAccount(ID));
+        return true;
+
+    }
 }
