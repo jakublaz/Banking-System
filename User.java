@@ -1,5 +1,6 @@
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,28 +33,6 @@ public class User {
         this.surname = surname;
         this.money = money;
         accounts = new ArrayList<>();
-    }
-
-    public void PrintUser() {
-        System.out.println("Name: " + this.name);
-        System.out.println("Surname: " + this.surname);
-        System.out.println("Age: " + this.age);
-        System.out.println("Money: " + this.money);
-    }
-
-    public void PrintAccount(int ID) {
-        for (Account account : accounts) {
-            if (account.GetID() == ID) {
-                account.PrintDetails();
-            }
-        }
-    }
-
-    public void PrintAccounts() {
-        for (Account account : accounts) {
-            account.PrintDetails();
-            System.out.println();
-        }
     }
 
     public void SetMoney(double money) {
@@ -103,13 +82,6 @@ public class User {
     }
 
     public boolean TransferMoney_ToAccount(int ID, double money) {
-        if (this.money < money) {
-            return false;
-        }
-        if (FindAccount(ID) == null) {
-            return false;
-        }
-        this.money -= money;
         Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney() + money);
         return true;
     }
@@ -160,5 +132,50 @@ public class User {
 
     public List<Account> GetAccounts() {
         return accounts;
+    }
+
+    public void RemoveUserData(JFrame frame, JLabel labelname, JLabel labelsurname, JLabel labelage, JLabel labelmoney) {
+        frame.remove(labelname);
+        frame.remove(labelsurname);
+        frame.remove(labelage);
+        frame.remove(labelmoney);
+    }
+
+    public void ShowUserData(JFrame frame, JLabel labelname, JLabel labelsurname, JLabel labelage, JLabel labelmoney) {
+        RemoveUserData(frame, labelname, labelsurname, labelage, labelmoney);
+        labelname.setText("Name: " + name);
+        labelsurname.setText("Surname: " + surname);
+        labelage.setText("Age: " + age);
+        labelmoney.setText("Money: " + money);
+
+        labelname.setVisible(true);
+        labelsurname.setVisible(true);
+        labelage.setVisible(true);
+        labelmoney.setVisible(true);
+
+        labelname.setFont(labelname.getFont().deriveFont(40.0f));
+        labelsurname.setFont(labelsurname.getFont().deriveFont(40.0f));
+        labelage.setFont(labelage.getFont().deriveFont(40.0f));
+        labelmoney.setFont(labelmoney.getFont().deriveFont(40.0f));
+
+        labelname.setBounds(50, 50, 400, 50);
+        labelsurname.setBounds(50, 100, 400, 50);
+        labelage.setBounds(50, 150, 400, 50);
+        labelmoney.setBounds(50, 200, 400, 50);
+
+        frame.add(labelname);
+        frame.add(labelsurname);
+        frame.add(labelage);
+        frame.add(labelmoney);
+        frame.setLayout(null);
+        frame.setVisible(true);
+
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public double AddMoney(double money){
+        this.money += money;
+        return this.money;
     }
 }

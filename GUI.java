@@ -25,28 +25,12 @@ public class GUI implements ActionListener, ListSelectionListener {
         return true;
     }
 
-//    public static void main(String[] args) {
-//        //sout == System.out.println();
-//        User a = new User("Ala","Kowalska",7);
-//        a.SetMoney(5000);
-//        a.PrintUser();
-//        a.AddAccount(1);
-//        a.AddAccount(2);
-//        a.TransferMoney_ToAccount(1,1000);
-//        a.TransferMoney_ToAccount(2,3000);
-//        a.TransferMoney_BetweenAccounts(2,1,1500);
-//        a.PrintAccounts();
-//        a.CloseAccount(2);
-//        a.PrintUser();
-//        User b = new User("Jan","Kowalski",17,100);
-//        TransaferBetweenUsers(a,b,1000);
-//        b.PrintUser();
-//    }
-
     public static void main(String[] args) {
         CreateUser("a","a","a","a",18); //just for testing
         User a = Users.get(0);
-        a.SetMoney(5000);
+        a.AddAccount(1);
+        a.AddAccount(2);
+        System.out.println(a.GetMoney());
         CreateGUI_Login();
     }
 
@@ -146,19 +130,12 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setSize(2560,1440);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JLabel label = new JLabel("Hi " + user.GetName());
-        label.setSize(240,80);
-        label.setLocation(1000,60);
-        label.setFont(label.getFont().deriveFont(80f));
-        label.setForeground(Color.RED);
-        label.setVisible(true);
+        JLabel labelname = new JLabel();
+        JLabel labelsurname = new JLabel();
+        JLabel labelage =  new JLabel();
+        JLabel labelmoney = new JLabel();
 
-        JLabel money = new JLabel("Money: " + user.GetMoney());
-        money.setSize(500,80);
-        money.setLocation(900,160);
-        money.setFont(money.getFont().deriveFont(60f));
-        money.setForeground(Color.RED);
-        money.setVisible(true);
+        user.ShowUserData(frame,labelname,labelsurname,labelage,labelmoney);
 
         final Account[] selectedAccount = new Account[1];
 
@@ -215,17 +192,35 @@ public class GUI implements ActionListener, ListSelectionListener {
             scrollPane.repaint();
         });
 
-        JButton buttonTransferMoney = new JButton("Transfer Money");
-        buttonTransferMoney.setSize(340,60);
-        buttonTransferMoney.setLocation(1000,630);
-        buttonTransferMoney.setFont(buttonTransferMoney.getFont().deriveFont(40f));
-        buttonTransferMoney.setVisible(true);
+        JButton buttonTransferMoneyIn = new JButton("Transfer money In");
+        buttonTransferMoneyIn.setSize(500,60);
+        buttonTransferMoneyIn.setLocation(900,630);
+        buttonTransferMoneyIn.setFont(buttonTransferMoneyIn.getFont().deriveFont(40f));
+        buttonTransferMoneyIn.setVisible(true);
+        buttonTransferMoneyIn.addActionListener(e->{
+            if(selectedAccount[0]==null){
+                JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money to", "Information", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            double money=0;
+            try{
+                money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transefer from other bank?", "Transfer money", JOptionPane.PLAIN_MESSAGE));
+            }catch(Exception exception){
+                JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            user.TransferMoney_ToAccount(selectedAccount[0].GetID(),money);
+            System.out.println(user.AddMoney(money));
+            user.ShowUserData(frame,labelname,labelsurname,labelage,labelmoney);
+            Accounts.setListData(user.GetAccounts().toArray());
+            scrollPane.revalidate();
+            scrollPane.repaint();
+        });
 
-        JButton buttonPrintAccounts = new JButton("Print Accounts");
-        buttonPrintAccounts.setSize(340,60);
-        buttonPrintAccounts.setLocation(1000,710);
-        buttonPrintAccounts.setFont(buttonPrintAccounts.getFont().deriveFont(40f));
-        buttonPrintAccounts.setVisible(true);
+        JButton buttonTransferMoneyOut = new JButton("Transfer money Out");
+        buttonTransferMoneyOut.setSize(500,60);
+        buttonTransferMoneyOut.setLocation(900,710);
+        buttonTransferMoneyOut.setFont(buttonTransferMoneyOut.getFont().deriveFont(40f));
+        buttonTransferMoneyOut.setVisible(true);
 
         JButton buttonLogout = new JButton("Logout");
         buttonLogout.setSize(340,60);
@@ -237,12 +232,10 @@ public class GUI implements ActionListener, ListSelectionListener {
             CreateGUI_Login();
         });
 
-        frame.getContentPane().add(label);
-        frame.getContentPane().add(money);
         frame.getContentPane().add(buttonCreateAccount);
         frame.getContentPane().add(buttonCloseAccount);
-        frame.getContentPane().add(buttonTransferMoney);
-        frame.getContentPane().add(buttonPrintAccounts);
+        frame.getContentPane().add(buttonTransferMoneyIn);
+        frame.getContentPane().add(buttonTransferMoneyOut);
         frame.getContentPane().add(buttonLogout);
         frame.getContentPane().add(scrollPane);
         frame.setLayout(null);
@@ -380,17 +373,6 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setLayout(null);
         frame.setVisible(true);
 
-    }
-
-    //From user a to user b
-    public static void TransaferBetweenUsers(User a, User b, int money){
-        if(a.GetMoney() >= money){
-            a.SetMoney(a.GetMoney() - money);
-            b.SetMoney(b.GetMoney() + money);
-        }
-        else{
-            System.out.println("You don't have enough money");
-        }
     }
 
     @Override
