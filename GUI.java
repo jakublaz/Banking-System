@@ -8,15 +8,7 @@ import java.util.Scanner;
 public class GUI implements ActionListener {
     String name = "Banking Friend";
 
-    static JFrame frame;
-    static JLabel labellogin;
-    static JTextField textlogin;
-    static JLabel labelpassword;
-    static JPasswordField textpassword;
-    static JButton buttonlogin;
-    static JButton buttonregister;
-
-    public Map<String, String> users = new HashMap<>();
+    public Map<String, String> users = new HashMap<>(); //here will be logins and passwords for users
 
     public static User CreateUser(){
         Scanner scanner = new Scanner(System.in);
@@ -51,53 +43,119 @@ public class GUI implements ActionListener {
     }
 
     public static void CreateGUI_Login(){
-        frame = new JFrame("Bank");
+
+        JFrame frame = new JFrame("Bank");
         frame.setSize(2560,1440);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        labellogin = new JLabel("Login");
+        JLabel labellogin = new JLabel("Login");
         labellogin.setSize(240,60);
         labellogin.setLocation(1000,470);
         labellogin.setFont(labellogin.getFont().deriveFont(40f));
         labellogin.setVisible(true);
 
-        textlogin = new JTextField();
+        JTextField textlogin = new JTextField();
         textlogin.setSize(240,40);
         textlogin.setLocation(1200,480);
         textlogin.setFont(textlogin.getFont().deriveFont(40f));
         textlogin.setVisible(true);
 
-        labelpassword = new JLabel("Password");
+        JLabel labelpassword = new JLabel("Password");
         labelpassword.setSize(240,60);
         labelpassword.setLocation(1000,550);
         labelpassword.setFont(labelpassword.getFont().deriveFont(40f));
         labelpassword.setVisible(true);
 
-        textpassword = new JPasswordField();
+        JPasswordField textpassword = new JPasswordField();
         textpassword.setSize(240,40);
         textpassword.setLocation(1200,560);
         textpassword.setFont(textpassword.getFont().deriveFont(40f));
         textpassword.setVisible(true);
 
-        buttonlogin = new JButton("Login");
+        JButton buttonlogin = new JButton("Login");
         buttonlogin.setSize(240,60);
         buttonlogin.setLocation(1200,640);
         buttonlogin.setFont(buttonlogin.getFont().deriveFont(40f));
-        buttonlogin.addActionListener(new GUI());
         buttonlogin.setVisible(true);
+        buttonlogin.addActionListener(e -> {
+                System.out.println("Login");
+        });
 
-        buttonregister = new JButton("Register");
+        JButton buttonregister = new JButton("Register");
         buttonregister.setSize(240,60);
         buttonregister.setLocation(1200,720);
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
-        buttonregister.addActionListener(new GUI());
         buttonregister.setVisible(true);
+        buttonregister.addActionListener(e -> {
+                frame.dispose();
+                CreateGUIRegistration();
+        });
 
         frame.getContentPane().add(labellogin);
         frame.getContentPane().add(textlogin);
         frame.getContentPane().add(labelpassword);
         frame.getContentPane().add(textpassword);
         frame.getContentPane().add(buttonlogin);
+        frame.getContentPane().add(buttonregister);
+        frame.setLayout(null);
+        frame.setVisible(true);
+
+
+    }
+
+    public static void CreateGUIRegistration(){
+        JFrame frame = new JFrame("Registration");
+        frame.setSize(2560,1440);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JLabel labelname = new JLabel("Name");
+        labelname.setSize(240,60);
+        labelname.setLocation(1000,470);
+        labelname.setFont(labelname.getFont().deriveFont(40f));
+        labelname.setVisible(true);
+
+        JTextField textname = new JTextField();
+        textname.setSize(240,40);
+        textname.setLocation(1200,480);
+        textname.setFont(textname.getFont().deriveFont(40f));
+        textname.setVisible(true);
+
+        JLabel labelsurname = new JLabel("Surname");
+        labelsurname.setSize(240,60);
+        labelsurname.setLocation(1000,550);
+        labelsurname.setFont(labelsurname.getFont().deriveFont(40f));
+        labelsurname.setVisible(true);
+
+        JTextField textsurname = new JTextField();
+        textsurname.setSize(240,40);
+        textsurname.setLocation(1200,560);
+        textsurname.setFont(textsurname.getFont().deriveFont(40f));
+        textsurname.setVisible(true);
+
+        JLabel labelage = new JLabel("Age");
+        labelage.setSize(240,60);
+        labelage.setLocation(1000,630);
+        labelage.setFont(labelage.getFont().deriveFont(40f));
+        labelage.setVisible(true);
+
+        JTextField textage = new JTextField();
+        textage.setSize(240,40);
+        textage.setLocation(1200,640);
+        textage.setFont(textage.getFont().deriveFont(40f));
+        textage.setVisible(true);
+
+        JButton buttonregister = new JButton("Register");
+        buttonregister.setSize(240,60);
+        buttonregister.setLocation(1200,720);
+        buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
+        buttonregister.setVisible(true);
+
+        frame.getContentPane().add(labelname);
+        frame.getContentPane().add(textname);
+        frame.getContentPane().add(labelsurname);
+        frame.getContentPane().add(textsurname);
+        frame.getContentPane().add(labelage);
+        frame.getContentPane().add(textage);
         frame.getContentPane().add(buttonregister);
         frame.setLayout(null);
         frame.setVisible(true);
@@ -117,14 +175,6 @@ public class GUI implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == buttonlogin){
-            System.out.println("Login");
-            return;
-        }
-        if (e.getSource() == buttonregister){
-            System.out.println("Register");
-            return;
-        }
 
     }
 }
