@@ -41,6 +41,10 @@ public class GUI implements ActionListener {
         CreateGUI_Login();
     }
 
+    static boolean CheckCredentials(String login, String password){
+        return Users.stream().anyMatch(user -> user.GetLogin().equals(login) && user.GetPassword().equals(password));
+    }
+
     public static void CreateGUI_Login(){
 
         JFrame frame = new JFrame("Bank");
@@ -77,7 +81,10 @@ public class GUI implements ActionListener {
         buttonlogin.setFont(buttonlogin.getFont().deriveFont(40f));
         buttonlogin.setVisible(true);
         buttonlogin.addActionListener(e -> {
-                System.out.println("Login");
+            if(CheckCredentials(textlogin.getText(),textpassword.getText())){
+                frame.dispose();
+                CreateGUI_MainMenu();
+            }
         });
 
         JButton buttonregister = new JButton("Register");
@@ -86,8 +93,8 @@ public class GUI implements ActionListener {
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
         buttonregister.setVisible(true);
         buttonregister.addActionListener(e -> {
-                frame.dispose();
-                CreateGUIRegistration();
+            frame.dispose();
+            CreateGUIRegistration();
         });
 
         frame.getContentPane().add(labellogin);
@@ -98,7 +105,54 @@ public class GUI implements ActionListener {
         frame.getContentPane().add(buttonregister);
         frame.setLayout(null);
         frame.setVisible(true);
+    }
 
+    private static void CreateGUI_MainMenu() {
+        JFrame frame = new JFrame("Main Menu");
+        frame.setSize(2560,1440);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JButton buttonCreateAccount = new JButton("Create Account");
+        buttonCreateAccount.setSize(340,60);
+        buttonCreateAccount.setLocation(1000,470);
+        buttonCreateAccount.setFont(buttonCreateAccount.getFont().deriveFont(40f));
+        buttonCreateAccount.setVisible(true);
+
+        JButton buttonCloseAccount = new JButton("Close Account");
+        buttonCloseAccount.setSize(340,60);
+        buttonCloseAccount.setLocation(1000,550);
+        buttonCloseAccount.setFont(buttonCloseAccount.getFont().deriveFont(40f));
+        buttonCloseAccount.setVisible(true);
+
+        JButton buttonTransferMoney = new JButton("Transfer Money");
+        buttonTransferMoney.setSize(340,60);
+        buttonTransferMoney.setLocation(1000,630);
+        buttonTransferMoney.setFont(buttonTransferMoney.getFont().deriveFont(40f));
+        buttonTransferMoney.setVisible(true);
+
+        JButton buttonPrintAccounts = new JButton("Print Accounts");
+        buttonPrintAccounts.setSize(340,60);
+        buttonPrintAccounts.setLocation(1000,710);
+        buttonPrintAccounts.setFont(buttonPrintAccounts.getFont().deriveFont(40f));
+        buttonPrintAccounts.setVisible(true);
+
+        JButton buttonLogout = new JButton("Logout");
+        buttonLogout.setSize(340,60);
+        buttonLogout.setLocation(1000,790);
+        buttonLogout.setFont(buttonLogout.getFont().deriveFont(40f));
+        buttonLogout.setVisible(true);
+        buttonLogout.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_Login();
+        });
+
+        frame.getContentPane().add(buttonCreateAccount);
+        frame.getContentPane().add(buttonCloseAccount);
+        frame.getContentPane().add(buttonTransferMoney);
+        frame.getContentPane().add(buttonPrintAccounts);
+        frame.getContentPane().add(buttonLogout);
+        frame.setLayout(null);
+        frame.setVisible(true);
 
     }
 
