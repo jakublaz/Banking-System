@@ -1,17 +1,23 @@
+import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class GUI implements ActionListener {
+public class GUI implements ActionListener, ListSelectionListener {
     String name = "Banking Friend";
     static ArrayList<User> Users = new ArrayList<>();
 
     public static boolean CreateUser(String name, String surname, String login, String password, int age) {
         if(Users.stream().anyMatch(user -> user.GetLogin().equals(login))){
+            JOptionPane.showMessageDialog(null, "Account was created earlier, Log in", "Information", JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         if(name.equals("") || surname.equals("") || login.equals("") || password.equals("") || age < 18){
+            JOptionPane.showMessageDialog(null, "One of the options in not filled or you are not 18 years old", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         User user = new User(name, surname, login, password, age);
@@ -38,11 +44,19 @@ public class GUI implements ActionListener {
 //    }
 
     public static void main(String[] args) {
+        CreateUser("a","a","a","a",18); //just for testing
+        User a = Users.get(0);
+        a.SetMoney(5000);
         CreateGUI_Login();
     }
 
-    static boolean CheckCredentials(String login, String password){
-        return Users.stream().anyMatch(user -> user.GetLogin().equals(login) && user.GetPassword().equals(password));
+    static @Nullable User CheckCredentials(String login, String password){
+        for (User user : Users) {
+            if (user.GetLogin().equals(login) && user.GetPassword().equals(password)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     public static void CreateGUI_Login(){
@@ -81,9 +95,12 @@ public class GUI implements ActionListener {
         buttonlogin.setFont(buttonlogin.getFont().deriveFont(40f));
         buttonlogin.setVisible(true);
         buttonlogin.addActionListener(e -> {
-            if(CheckCredentials(textlogin.getText(),textpassword.getText())){
+            User user = CheckCredentials(textlogin.getText(),textpassword.getText());
+            if(user != null){
                 frame.dispose();
-                CreateGUI_MainMenu();
+                CreateGUI_MainMenu(user);
+            }else{
+                JOptionPane.showMessageDialog(null,"Login or password incorrect", "Login",JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -107,22 +124,87 @@ public class GUI implements ActionListener {
         frame.setVisible(true);
     }
 
-    private static void CreateGUI_MainMenu() {
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+
+    }
+
+    static class AccountRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                      boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
+            Account account = (Account) value;
+            label.setText("Account ID: " + account.GetID() + ", Money: " + account.GetMoney());
+            return label;
+        }
+    }
+
+    private static void CreateGUI_MainMenu(User user) {
+
         JFrame frame = new JFrame("Main Menu");
         frame.setSize(2560,1440);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JLabel label = new JLabel("Hi " + user.GetName());
+        label.setSize(240,80);
+        label.setLocation(1000,60);
+        label.setFont(label.getFont().deriveFont(80f));
+        label.setForeground(Color.RED);
+        label.setVisible(true);
+
+        JLabel money = new JLabel("Money: " + user.GetMoney());
+        money.setSize(500,80);
+        money.setLocation(900,160);
+        money.setFont(money.getFont().deriveFont(60f));
+        money.setForeground(Color.RED);
+        money.setVisible(true);
+
+        JList<Object> Accounts = new JList<>();
+        Accounts.setFont(Accounts.getFont().deriveFont(40f));
+        Accounts.setCellRenderer(new AccountRenderer());
+        Accounts.setListData(user.GetAccounts().toArray());
+        Accounts.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                Account selected = (Account) Accounts.getSelectedValue();
+            }
+        });
+
+        JScrollPane scrollPane = new JScrollPane(Accounts);
+        scrollPane.setSize(600,1000);
+        scrollPane.setLocation(1500,200);
+        scrollPane.setVisible(true);
 
         JButton buttonCreateAccount = new JButton("Create Account");
         buttonCreateAccount.setSize(340,60);
         buttonCreateAccount.setLocation(1000,470);
         buttonCreateAccount.setFont(buttonCreateAccount.getFont().deriveFont(40f));
         buttonCreateAccount.setVisible(true);
+        buttonCreateAccount.addActionListener(e -> {
+            String userInput = (String) JOptionPane.showInputDialog(null, "Tell the ID", "Create Account", JOptionPane.PLAIN_MESSAGE, null, null, "");
+            if(userInput != null){
+                int id = Integer.parseInt(userInput);
+                if(user.AddAccount(id)){
+                    JOptionPane.showMessageDialog(null, "Account created successfully");
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "Account with this ID already exists");
+                }
+                Accounts.setListData(user.GetAccounts().toArray());
+//                scrollPane.setFont(scrollPane.getFont().deriveFont(40f));
+                scrollPane.revalidate();
+                scrollPane.repaint();
+            }
+        });
 
         JButton buttonCloseAccount = new JButton("Close Account");
         buttonCloseAccount.setSize(340,60);
         buttonCloseAccount.setLocation(1000,550);
         buttonCloseAccount.setFont(buttonCloseAccount.getFont().deriveFont(40f));
         buttonCloseAccount.setVisible(true);
+        buttonCloseAccount.addActionListener(e -> {
+
+        });
 
         JButton buttonTransferMoney = new JButton("Transfer Money");
         buttonTransferMoney.setSize(340,60);
@@ -146,11 +228,14 @@ public class GUI implements ActionListener {
             CreateGUI_Login();
         });
 
+        frame.getContentPane().add(label);
+        frame.getContentPane().add(money);
         frame.getContentPane().add(buttonCreateAccount);
         frame.getContentPane().add(buttonCloseAccount);
         frame.getContentPane().add(buttonTransferMoney);
         frame.getContentPane().add(buttonPrintAccounts);
         frame.getContentPane().add(buttonLogout);
+        frame.getContentPane().add(scrollPane);
         frame.setLayout(null);
         frame.setVisible(true);
 
@@ -221,9 +306,21 @@ public class GUI implements ActionListener {
         textpassword.setFont(textpassword.getFont().deriveFont(40f));
         textpassword.setVisible(true);
 
+        JLabel labelpassword2 = new JLabel("Password");
+        labelpassword2.setSize(240,60);
+        labelpassword2.setLocation(1000,870);
+        labelpassword2.setFont(labelpassword2.getFont().deriveFont(40f));
+        labelpassword2.setVisible(true);
+
+        JTextField textpassword2 = new JTextField();
+        textpassword2.setSize(240,40);
+        textpassword2.setLocation(1200,880);
+        textpassword2.setFont(textpassword2.getFont().deriveFont(40f));
+        textpassword2.setVisible(true);
+
         JButton buttonregister = new JButton("Register");
         buttonregister.setSize(240,60);
-        buttonregister.setLocation(1200,880);
+        buttonregister.setLocation(1200,960);
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
         buttonregister.setVisible(true);
         buttonregister.addActionListener(e -> {
@@ -235,13 +332,26 @@ public class GUI implements ActionListener {
                 System.out.println("Age must be a number");
                 age = 0;
             }
-
+            if(!textpassword.getText().equals(textpassword2.getText())){
+                JOptionPane.showMessageDialog(null, "Passwords do not match", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             if(CreateUser(textname.getText(), textsurname.getText(), textlogin.getText(), textpassword.getText(), age)){
                 System.out.println("Registered");
                 frame.dispose();
                 CreateGUI_Login();
             }
 
+        });
+
+        JButton buttonback = new JButton("Back");
+        buttonback.setSize(240,60);
+        buttonback.setLocation(1200,1040);
+        buttonback.setFont(buttonback.getFont().deriveFont(40f));
+        buttonback.setVisible(true);
+        buttonback.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_Login();
         });
 
         frame.getContentPane().add(labelname);
@@ -254,7 +364,10 @@ public class GUI implements ActionListener {
         frame.getContentPane().add(textlogin);
         frame.getContentPane().add(labelpassword);
         frame.getContentPane().add(textpassword);
+        frame.getContentPane().add(labelpassword2);
+        frame.getContentPane().add(textpassword2);
         frame.getContentPane().add(buttonregister);
+        frame.getContentPane().add(buttonback);
         frame.setLayout(null);
         frame.setVisible(true);
 

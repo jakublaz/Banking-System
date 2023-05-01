@@ -52,6 +52,7 @@ public class User {
     public void PrintAccounts() {
         for (Account account : accounts) {
             account.PrintDetails();
+            System.out.println();
         }
     }
 
@@ -155,5 +156,9 @@ public class User {
 
     public String GetPassword() {
         return password;
+    }
+
+    public List<Account> GetAccounts() {
+        return accounts;
     }
 }
