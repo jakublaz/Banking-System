@@ -160,13 +160,15 @@ public class GUI implements ActionListener, ListSelectionListener {
         money.setForeground(Color.RED);
         money.setVisible(true);
 
+        final Account[] selectedAccount = new Account[1];
+
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
         Accounts.setCellRenderer(new AccountRenderer());
         Accounts.setListData(user.GetAccounts().toArray());
         Accounts.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                Account selected = (Account) Accounts.getSelectedValue();
+                selectedAccount[0] = (Account) Accounts.getSelectedValue();
             }
         });
 
@@ -191,7 +193,6 @@ public class GUI implements ActionListener, ListSelectionListener {
                     JOptionPane.showMessageDialog(null, "Account with this ID already exists");
                 }
                 Accounts.setListData(user.GetAccounts().toArray());
-//                scrollPane.setFont(scrollPane.getFont().deriveFont(40f));
                 scrollPane.revalidate();
                 scrollPane.repaint();
             }
@@ -203,7 +204,15 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttonCloseAccount.setFont(buttonCloseAccount.getFont().deriveFont(40f));
         buttonCloseAccount.setVisible(true);
         buttonCloseAccount.addActionListener(e -> {
-
+            if(selectedAccount[0]==null){
+                JOptionPane.showMessageDialog(null, "You have to choose the account to want to close", "Information", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            user.CloseAccount(selectedAccount[0].GetID());
+            JOptionPane.showMessageDialog(null,"The account has been closed","Information", JOptionPane.INFORMATION_MESSAGE);
+            Accounts.setListData(user.GetAccounts().toArray());
+            scrollPane.revalidate();
+            scrollPane.repaint();
         });
 
         JButton buttonTransferMoney = new JButton("Transfer Money");
