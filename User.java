@@ -7,21 +7,27 @@ import java.util.Objects;
 public class User {
     private final String name;
     private final String surname;
+    private final String login;
+    private String password;
     private int age;
     private double money;
     private List<Account> accounts;
 
 
-    public User(String name, String surname, int age) {
+    public User(String name, String surname, String login, String password, int age) {
         this.name = name;
+        this.login = login;
+        this.password = password;
         this.age = age;
         this.surname = surname;
         this.money = 0;
         accounts = new ArrayList<>();
     }
 
-    public User(String name, String surname, int age, double money) {
+    public User(String name, String surname, String login, String password, int age, double money) {
         this.name = name;
+        this.login = login;
+        this.password = password;
         this.age = age;
         this.surname = surname;
         this.money = money;
@@ -71,6 +77,10 @@ public class User {
 
     public String GetSurname() {
         return this.surname;
+    }
+
+    public String GetLogin() {
+        return this.login;
     }
 
     public boolean AddAccount(int ID) {

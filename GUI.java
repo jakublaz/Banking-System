@@ -1,25 +1,24 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class GUI implements ActionListener {
     String name = "Banking Friend";
+    static ArrayList<User> Users = new ArrayList<>();
 
-    public Map<String, String> users = new HashMap<>(); //here will be logins and passwords for users
-
-    public static User CreateUser(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Podaj imie: ");
-        String name = scanner.nextLine();
-        System.out.println("Podaj nazwisko: ");
-        String surname = scanner.nextLine();
-        System.out.println("Podaj wiek: ");
-        int age = scanner.nextInt();
-        return new User(name,surname,age);
+    public static boolean CreateUser(String name, String surname, String login, String password, int age) {
+        if(Users.stream().anyMatch(user -> user.GetLogin().equals(login))){
+            return false;
+        }
+        if(name.equals("") || surname.equals("") || login.equals("") || password.equals("") || age < 18){
+            return false;
+        }
+        User user = new User(name, surname, login, password, age);
+        Users.add(user);
+        return true;
     }
+
 //    public static void main(String[] args) {
 //        //sout == System.out.println();
 //        User a = new User("Ala","Kowalska",7);
@@ -144,11 +143,52 @@ public class GUI implements ActionListener {
         textage.setFont(textage.getFont().deriveFont(40f));
         textage.setVisible(true);
 
+        JLabel labellogin = new JLabel("Login");
+        labellogin.setSize(240,60);
+        labellogin.setLocation(1000,710);
+        labellogin.setFont(labellogin.getFont().deriveFont(40f));
+        labellogin.setVisible(true);
+
+        JTextField textlogin = new JTextField();
+        textlogin.setSize(240,40);
+        textlogin.setLocation(1200,720);
+        textlogin.setFont(textlogin.getFont().deriveFont(40f));
+        textlogin.setVisible(true);
+
+        JLabel labelpassword = new JLabel("Password");
+        labelpassword.setSize(240,60);
+        labelpassword.setLocation(1000,790);
+        labelpassword.setFont(labelpassword.getFont().deriveFont(40f));
+        labelpassword.setVisible(true);
+
+        JTextField textpassword = new JTextField();
+        textpassword.setSize(240,40);
+        textpassword.setLocation(1200,800);
+        textpassword.setFont(textpassword.getFont().deriveFont(40f));
+        textpassword.setVisible(true);
+
         JButton buttonregister = new JButton("Register");
         buttonregister.setSize(240,60);
-        buttonregister.setLocation(1200,720);
+        buttonregister.setLocation(1200,880);
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
         buttonregister.setVisible(true);
+        buttonregister.addActionListener(e -> {
+            int age;
+
+            try{
+                age = Integer.parseInt(textage.getText());
+            }catch(NumberFormatException ex){
+                System.out.println("Age must be a number");
+                age = 0;
+            }
+
+            if(CreateUser(textname.getText(), textsurname.getText(), textlogin.getText(), textpassword.getText(), age)){
+                System.out.println("Registered");
+                frame.dispose();
+                CreateGUI_Login();
+            }
+
+        });
 
         frame.getContentPane().add(labelname);
         frame.getContentPane().add(textname);
@@ -156,6 +196,10 @@ public class GUI implements ActionListener {
         frame.getContentPane().add(textsurname);
         frame.getContentPane().add(labelage);
         frame.getContentPane().add(textage);
+        frame.getContentPane().add(labellogin);
+        frame.getContentPane().add(textlogin);
+        frame.getContentPane().add(labelpassword);
+        frame.getContentPane().add(textpassword);
         frame.getContentPane().add(buttonregister);
         frame.setLayout(null);
         frame.setVisible(true);
