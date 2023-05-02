@@ -227,7 +227,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
             }
             user.TransferMoney_ToAccount(selectedAccount[0].GetID(),money);
-            user.SetMoney(user.GetMoney()+money);       //to jest ok
+            user.SetMoney(user.GetMoney()+money);       //to jest ok, problem przy zamykaniu konta, musi być 0 i bediz eok
             user.ShowUserData(panel);
             frame.add(panel, BorderLayout.CENTER);
             frame.revalidate();

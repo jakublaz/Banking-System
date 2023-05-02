@@ -1,6 +1,7 @@
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -134,48 +135,44 @@ public class User {
         return accounts;
     }
 
-    public void RemoveUserData(JFrame frame, JLabel labelname, JLabel labelsurname, JLabel labelage, JLabel labelmoney) {
-        frame.remove(labelname);
-        frame.remove(labelsurname);
-        frame.remove(labelage);
-        frame.remove(labelmoney);
-    }
+    public void ShowUserData(JPanel panel){
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JLabel retrievedLabel) {
 
-    public void ShowUserData(JFrame frame, JLabel labelname, JLabel labelsurname, JLabel labelage, JLabel labelmoney) {
-        RemoveUserData(frame, labelname, labelsurname, labelage, labelmoney);
-        labelname.setText("Name: " + name);
-        labelsurname.setText("Surname: " + surname);
-        labelage.setText("Age: " + age);
-        labelmoney.setText("Money: " + money);
+                if (retrievedLabel.getName().equals("labelmoney")) {
+                    // Modify the text of the retrieved label
+                    retrievedLabel.setText("Money: " + money);
+                    continue;
+                }
 
-        labelname.setVisible(true);
-        labelsurname.setVisible(true);
-        labelage.setVisible(true);
-        labelmoney.setVisible(true);
+                if (retrievedLabel.getName().equals("labelname")) {
+                    // Modify the text of the retrieved label
+                    retrievedLabel.setText("Name: " + name);
+                    continue;
+                }
 
-        labelname.setFont(labelname.getFont().deriveFont(40.0f));
-        labelsurname.setFont(labelsurname.getFont().deriveFont(40.0f));
-        labelage.setFont(labelage.getFont().deriveFont(40.0f));
-        labelmoney.setFont(labelmoney.getFont().deriveFont(40.0f));
+                if (retrievedLabel.getName().equals("labelsurname")) {
+                    // Modify the text of the retrieved label
+                    retrievedLabel.setText("Surname: " + surname);
+                    continue;
+                }
 
-        labelname.setBounds(50, 50, 400, 50);
-        labelsurname.setBounds(50, 100, 400, 50);
-        labelage.setBounds(50, 150, 400, 50);
-        labelmoney.setBounds(50, 200, 400, 50);
+                if (retrievedLabel.getName().equals("labelage")) {
+                    // Modify the text of the retrieved label
+                    retrievedLabel.setText("Age: " + age);
+                }
 
-        frame.add(labelname);
-        frame.add(labelsurname);
-        frame.add(labelage);
-        frame.add(labelmoney);
-        frame.setLayout(null);
-        frame.setVisible(true);
+            }
+        }
 
-        frame.revalidate();
-        frame.repaint();
+        panel.revalidate();
+        panel.repaint();
     }
 
     public double AddMoney(double money){
         this.money += money;
         return this.money;
     }
+
 }
