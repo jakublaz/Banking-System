@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public class GUI implements ActionListener, ListSelectionListener {
     String name = "Banking Friend";
     static ArrayList<User> Users = new ArrayList<>();
+    static final int WIDTH = 1920;
+    static final int HEIGHT = 1080;
 
     public static boolean CreateUser(String name, String surname, String login, String password, int age) {
         if(Users.stream().anyMatch(user -> user.GetLogin().equals(login))){
@@ -30,7 +32,6 @@ public class GUI implements ActionListener, ListSelectionListener {
         User a = Users.get(0);
         a.AddAccount(1);
         a.AddAccount(2);
-        System.out.println(a.GetMoney());
         CreateGUI_Login();
     }
 
@@ -46,7 +47,7 @@ public class GUI implements ActionListener, ListSelectionListener {
     public static void CreateGUI_Login(){
 
         JFrame frame = new JFrame("Bank");
-        frame.setSize(1920, 1080);
+        frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -128,17 +129,46 @@ public class GUI implements ActionListener, ListSelectionListener {
     }
 
     private static void CreateGUI_MainMenu(User user) {
-
-        JFrame frame = new JFrame("Main Menu");
-        frame.setSize(2560,1440);
+        JFrame frame = new JFrame("Bank");
+        frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
 
-        JLabel labelname = new JLabel();
-        JLabel labelsurname = new JLabel();
-        JLabel labelage =  new JLabel();
-        JLabel labelmoney = new JLabel();
+        JPanel panel = new JPanel(new GridBagLayout());
+        frame.add(panel, BorderLayout.CENTER);
 
-        user.ShowUserData(frame,labelname,labelsurname,labelage,labelmoney);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(10, 10, 10, 10);
+
+        JLabel labelname = new JLabel("Name: " + user.GetName());
+        labelname.setName("labelname");
+        JLabel labelsurname = new JLabel("Surname: " + user.GetSurname());
+        labelsurname.setName("labelsurname");
+        JLabel labelage =  new JLabel("Age: " + user.GetAge());
+        labelage.setName("labelage");
+        JLabel labelmoney = new JLabel("Money: " + user.GetMoney());
+        labelmoney.setName("labelmoney");
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        labelname.setFont(labelname.getFont().deriveFont(40f));
+        panel.add(labelname, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        labelsurname.setFont(labelsurname.getFont().deriveFont(40f));
+        panel.add(labelsurname, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        labelage.setFont(labelage.getFont().deriveFont(40f));
+        panel.add(labelage, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        labelmoney.setFont(labelmoney.getFont().deriveFont(40f));
+        panel.add(labelmoney, constraints);
 
         final Account[] selectedAccount = new Account[1];
 
@@ -153,15 +183,10 @@ public class GUI implements ActionListener, ListSelectionListener {
         });
 
         JScrollPane scrollPane = new JScrollPane(Accounts);
-        scrollPane.setSize(600,1000);
-        scrollPane.setLocation(1500,200);
-        scrollPane.setVisible(true);
+        scrollPane.setPreferredSize(new Dimension(600, 1000));
 
         JButton buttonCreateAccount = new JButton("Create Account");
-        buttonCreateAccount.setSize(340,60);
-        buttonCreateAccount.setLocation(1000,470);
         buttonCreateAccount.setFont(buttonCreateAccount.getFont().deriveFont(40f));
-        buttonCreateAccount.setVisible(true);
         buttonCreateAccount.addActionListener(e -> {
             String userInput = (String) JOptionPane.showInputDialog(null, "Tell the ID", "Create Account", JOptionPane.PLAIN_MESSAGE, null, null, "");
             if(userInput != null){
@@ -173,16 +198,11 @@ public class GUI implements ActionListener, ListSelectionListener {
                     JOptionPane.showMessageDialog(null, "Account with this ID already exists");
                 }
                 Accounts.setListData(user.GetAccounts().toArray());
-                scrollPane.revalidate();
-                scrollPane.repaint();
             }
         });
 
         JButton buttonCloseAccount = new JButton("Close Account");
-        buttonCloseAccount.setSize(340,60);
-        buttonCloseAccount.setLocation(1000,550);
         buttonCloseAccount.setFont(buttonCloseAccount.getFont().deriveFont(40f));
-        buttonCloseAccount.setVisible(true);
         buttonCloseAccount.addActionListener(e -> {
             if(selectedAccount[0]==null){
                 JOptionPane.showMessageDialog(null, "You have to choose the account to want to close", "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -191,15 +211,10 @@ public class GUI implements ActionListener, ListSelectionListener {
             user.CloseAccount(selectedAccount[0].GetID());
             JOptionPane.showMessageDialog(null,"The account has been closed","Information", JOptionPane.INFORMATION_MESSAGE);
             Accounts.setListData(user.GetAccounts().toArray());
-            scrollPane.revalidate();
-            scrollPane.repaint();
         });
 
         JButton buttonTransferMoneyIn = new JButton("Transfer money In");
-        buttonTransferMoneyIn.setSize(500,60);
-        buttonTransferMoneyIn.setLocation(900,630);
         buttonTransferMoneyIn.setFont(buttonTransferMoneyIn.getFont().deriveFont(40f));
-        buttonTransferMoneyIn.setVisible(true);
         buttonTransferMoneyIn.addActionListener(e->{
             if(selectedAccount[0]==null){
                 JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money to", "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -212,122 +227,101 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
             }
             user.TransferMoney_ToAccount(selectedAccount[0].GetID(),money);
-            System.out.println(user.AddMoney(money));
-            user.ShowUserData(frame,labelname,labelsurname,labelage,labelmoney);
+            user.SetMoney(user.GetMoney()+money);       //to jest ok
+            user.ShowUserData(panel);
+            frame.add(panel, BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
             Accounts.setListData(user.GetAccounts().toArray());
-            scrollPane.revalidate();
-            scrollPane.repaint();
+            JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
         });
 
         JButton buttonTransferMoneyOut = new JButton("Transfer money Out");
-        buttonTransferMoneyOut.setSize(500,60);
-        buttonTransferMoneyOut.setLocation(900,710);
         buttonTransferMoneyOut.setFont(buttonTransferMoneyOut.getFont().deriveFont(40f));
-        buttonTransferMoneyOut.setVisible(true);
 
         JButton buttonLogout = new JButton("Logout");
-        buttonLogout.setSize(340,60);
-        buttonLogout.setLocation(1000,790);
         buttonLogout.setFont(buttonLogout.getFont().deriveFont(40f));
-        buttonLogout.setVisible(true);
         buttonLogout.addActionListener(e -> {
             frame.dispose();
             CreateGUI_Login();
         });
 
-        frame.getContentPane().add(buttonCreateAccount);
-        frame.getContentPane().add(buttonCloseAccount);
-        frame.getContentPane().add(buttonTransferMoneyIn);
-        frame.getContentPane().add(buttonTransferMoneyOut);
-        frame.getContentPane().add(buttonLogout);
-        frame.getContentPane().add(scrollPane);
-        frame.setLayout(null);
-        frame.setVisible(true);
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        panel.add(buttonCreateAccount, constraints);
 
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        panel.add(buttonCloseAccount, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        panel.add(buttonTransferMoneyIn, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 3;
+        panel.add(buttonTransferMoneyOut, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 4;
+        panel.add(buttonLogout, constraints);
+
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        constraints.gridheight = 5;
+        panel.add(scrollPane, constraints);
+
+        frame.add(panel);
+        frame.setVisible(true);
     }
 
-    public static void CreateGUIRegistration(){
-        JFrame frame = new JFrame("Registration");
-        frame.setSize(2560,1440);
+
+            public static void CreateGUIRegistration(){
+        //i would like for this function to do the same as the one above but with a different layout using GridBagConstraints, it is great but can we have wider textfields
+
+        JFrame frame = new JFrame("Bank");
+        frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
 
         JLabel labelname = new JLabel("Name");
-        labelname.setSize(240,60);
-        labelname.setLocation(1000,470);
         labelname.setFont(labelname.getFont().deriveFont(40f));
-        labelname.setVisible(true);
 
         JTextField textname = new JTextField();
-        textname.setSize(240,40);
-        textname.setLocation(1200,480);
         textname.setFont(textname.getFont().deriveFont(40f));
-        textname.setVisible(true);
 
         JLabel labelsurname = new JLabel("Surname");
-        labelsurname.setSize(240,60);
-        labelsurname.setLocation(1000,550);
         labelsurname.setFont(labelsurname.getFont().deriveFont(40f));
-        labelsurname.setVisible(true);
 
         JTextField textsurname = new JTextField();
-        textsurname.setSize(240,40);
-        textsurname.setLocation(1200,560);
         textsurname.setFont(textsurname.getFont().deriveFont(40f));
-        textsurname.setVisible(true);
 
         JLabel labelage = new JLabel("Age");
-        labelage.setSize(240,60);
-        labelage.setLocation(1000,630);
         labelage.setFont(labelage.getFont().deriveFont(40f));
-        labelage.setVisible(true);
 
         JTextField textage = new JTextField();
-        textage.setSize(240,40);
-        textage.setLocation(1200,640);
         textage.setFont(textage.getFont().deriveFont(40f));
-        textage.setVisible(true);
 
         JLabel labellogin = new JLabel("Login");
-        labellogin.setSize(240,60);
-        labellogin.setLocation(1000,710);
         labellogin.setFont(labellogin.getFont().deriveFont(40f));
-        labellogin.setVisible(true);
 
         JTextField textlogin = new JTextField();
-        textlogin.setSize(240,40);
-        textlogin.setLocation(1200,720);
         textlogin.setFont(textlogin.getFont().deriveFont(40f));
-        textlogin.setVisible(true);
 
         JLabel labelpassword = new JLabel("Password");
-        labelpassword.setSize(240,60);
-        labelpassword.setLocation(1000,790);
         labelpassword.setFont(labelpassword.getFont().deriveFont(40f));
-        labelpassword.setVisible(true);
 
         JTextField textpassword = new JTextField();
-        textpassword.setSize(240,40);
-        textpassword.setLocation(1200,800);
         textpassword.setFont(textpassword.getFont().deriveFont(40f));
-        textpassword.setVisible(true);
 
-        JLabel labelpassword2 = new JLabel("Password");
-        labelpassword2.setSize(240,60);
-        labelpassword2.setLocation(1000,870);
+        JLabel labelpassword2 = new JLabel("Repeat password");
         labelpassword2.setFont(labelpassword2.getFont().deriveFont(40f));
-        labelpassword2.setVisible(true);
 
         JTextField textpassword2 = new JTextField();
-        textpassword2.setSize(240,40);
-        textpassword2.setLocation(1200,880);
         textpassword2.setFont(textpassword2.getFont().deriveFont(40f));
-        textpassword2.setVisible(true);
 
         JButton buttonregister = new JButton("Register");
-        buttonregister.setSize(240,60);
-        buttonregister.setLocation(1200,960);
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
-        buttonregister.setVisible(true);
         buttonregister.addActionListener(e -> {
             int age;
 
@@ -350,33 +344,80 @@ public class GUI implements ActionListener, ListSelectionListener {
         });
 
         JButton buttonback = new JButton("Back");
-        buttonback.setSize(240,60);
-        buttonback.setLocation(1200,1040);
         buttonback.setFont(buttonback.getFont().deriveFont(40f));
-        buttonback.setVisible(true);
         buttonback.addActionListener(e -> {
             frame.dispose();
             CreateGUI_Login();
         });
 
-        frame.getContentPane().add(labelname);
-        frame.getContentPane().add(textname);
-        frame.getContentPane().add(labelsurname);
-        frame.getContentPane().add(textsurname);
-        frame.getContentPane().add(labelage);
-        frame.getContentPane().add(textage);
-        frame.getContentPane().add(labellogin);
-        frame.getContentPane().add(textlogin);
-        frame.getContentPane().add(labelpassword);
-        frame.getContentPane().add(textpassword);
-        frame.getContentPane().add(labelpassword2);
-        frame.getContentPane().add(textpassword2);
-        frame.getContentPane().add(buttonregister);
-        frame.getContentPane().add(buttonback);
-        frame.setLayout(null);
-        frame.setVisible(true);
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(10, 10, 10, 10);
 
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        panel.add(labelname, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        constraints.weightx = 0.7; // set weightx to 0.7 for second column
+        panel.add(textname, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 0.3; // set weightx to 0.3 for first column
+        constraints.gridwidth = 1;
+        panel.add(labelsurname, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        panel.add(textsurname, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        panel.add(labelage, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        panel.add(textage, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        panel.add(labellogin, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        panel.add(textlogin, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        panel.add(labelpassword, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        panel.add(textpassword, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        panel.add(labelpassword2, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        panel.add(textpassword2, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        constraints.gridwidth = 1;
+        panel.add(buttonregister, constraints);
+
+        constraints.gridx = 1;
+        panel.add(buttonback, constraints);
+
+        frame.add(panel, BorderLayout.CENTER);
+        frame.setVisible(true);
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
