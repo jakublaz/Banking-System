@@ -46,65 +46,68 @@ public class GUI implements ActionListener, ListSelectionListener {
     public static void CreateGUI_Login(){
 
         JFrame frame = new JFrame("Bank");
-        frame.setSize(2560,1440);
+        frame.setSize(1920, 1080);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        frame.add(panel, BorderLayout.CENTER);
 
         JLabel labellogin = new JLabel("Login");
-        labellogin.setSize(240,60);
-        labellogin.setLocation(1000,470);
         labellogin.setFont(labellogin.getFont().deriveFont(40f));
-        labellogin.setVisible(true);
 
         JTextField textlogin = new JTextField();
-        textlogin.setSize(240,40);
-        textlogin.setLocation(1200,480);
         textlogin.setFont(textlogin.getFont().deriveFont(40f));
-        textlogin.setVisible(true);
 
         JLabel labelpassword = new JLabel("Password");
-        labelpassword.setSize(240,60);
-        labelpassword.setLocation(1000,550);
         labelpassword.setFont(labelpassword.getFont().deriveFont(40f));
-        labelpassword.setVisible(true);
 
         JPasswordField textpassword = new JPasswordField();
-        textpassword.setSize(240,40);
-        textpassword.setLocation(1200,560);
         textpassword.setFont(textpassword.getFont().deriveFont(40f));
-        textpassword.setVisible(true);
 
         JButton buttonlogin = new JButton("Login");
-        buttonlogin.setSize(240,60);
-        buttonlogin.setLocation(1200,640);
         buttonlogin.setFont(buttonlogin.getFont().deriveFont(40f));
-        buttonlogin.setVisible(true);
         buttonlogin.addActionListener(e -> {
-            User user = CheckCredentials(textlogin.getText(),textpassword.getText());
+            User user = CheckCredentials(textlogin.getText(), textpassword.getText());
             if(user != null){
                 frame.dispose();
                 CreateGUI_MainMenu(user);
             }else{
-                JOptionPane.showMessageDialog(null,"Login or password incorrect", "Login",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Login or password incorrect", "Login", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
         JButton buttonregister = new JButton("Register");
-        buttonregister.setSize(240,60);
-        buttonregister.setLocation(1200,720);
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
-        buttonregister.setVisible(true);
         buttonregister.addActionListener(e -> {
             frame.dispose();
             CreateGUIRegistration();
         });
 
-        frame.getContentPane().add(labellogin);
-        frame.getContentPane().add(textlogin);
-        frame.getContentPane().add(labelpassword);
-        frame.getContentPane().add(textpassword);
-        frame.getContentPane().add(buttonlogin);
-        frame.getContentPane().add(buttonregister);
-        frame.setLayout(null);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(10, 10, 10, 10);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        panel.add(labellogin, constraints);
+
+        constraints.gridx = 1;
+        panel.add(textlogin, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        panel.add(labelpassword, constraints);
+
+        constraints.gridx = 1;
+        panel.add(textpassword, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        panel.add(buttonlogin, constraints);
+
+        constraints.gridx = 1;
+        panel.add(buttonregister, constraints);
+
         frame.setVisible(true);
     }
 
