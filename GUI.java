@@ -33,8 +33,8 @@ public class GUI implements ActionListener, ListSelectionListener {
         User a = Users.get(0);
         a.AddAccount(1);
         a.AddAccount(2);
-        CreateGUI_Login();
-//        CreateGUI_MainMenu(a);
+//        CreateGUI_Login();
+        CreateGUI_MainMenu(a);
     }
 
     static @Nullable User CheckCredentials(String login, String password){
@@ -84,7 +84,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttonregister.setFont(buttonregister.getFont().deriveFont(40f));
         buttonregister.addActionListener(e -> {
             frame.dispose();
-            CreateGUIRegistration();
+            CreateGUI_Registration();
         });
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -208,9 +208,32 @@ public class GUI implements ActionListener, ListSelectionListener {
             if(user.WithdrawMoney(selectedAccount[0].GetID(),money)){
                 JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
                 selectedAccount[0].SetMoney(selectedAccount[0].GetMoney()-money);
+                Transaction transaction = new Transaction(selectedAccount[0].GetID(), 0,money,"Withdraw");
+                selectedAccount[0].AddTransaction(transaction);
                 Accounts.setListData(user.GetAccounts().toArray());
                 user.ShowUserData(panel);
             }
+        };
+
+        ActionListener deposit = e -> {
+            if(selectedAccount[0]==null){
+                JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money to", "Information", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            double money=0;
+            try{
+                money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transefer from other bank?", "Transfer money", JOptionPane.PLAIN_MESSAGE));
+            }catch(Exception exception){
+                JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            user.TransferMoney_ToAccount(selectedAccount[0].GetID(),money);
+            user.SetMoney(user.GetMoney()+money);       //to jest ok, problem przy zamykaniu konta, musi być 0 i bediz eok
+            user.ShowUserData(panel);
+            frame.add(panel, BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
+            Accounts.setListData(user.GetAccounts().toArray());
+            JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
         };
 
         JButton buttonCreateAccount = new JButton("Create Account");
@@ -245,26 +268,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         JButton buttonTransferMoneyIn = new JButton("Transfer money In");
         buttonTransferMoneyIn.setFont(buttonTransferMoneyIn.getFont().deriveFont(40f));
-        buttonTransferMoneyIn.addActionListener(e->{
-            if(selectedAccount[0]==null){
-                JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money to", "Information", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-            double money=0;
-            try{
-                money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transefer from other bank?", "Transfer money", JOptionPane.PLAIN_MESSAGE));
-            }catch(Exception exception){
-                JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            user.TransferMoney_ToAccount(selectedAccount[0].GetID(),money);
-            user.SetMoney(user.GetMoney()+money);       //to jest ok, problem przy zamykaniu konta, musi być 0 i bediz eok
-            user.ShowUserData(panel);
-            frame.add(panel, BorderLayout.CENTER);
-            frame.revalidate();
-            frame.repaint();
-            Accounts.setListData(user.GetAccounts().toArray());
-            JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
-        });
+        buttonTransferMoneyIn.addActionListener(deposit);
 
         JButton buttonTransferMoneyOut = new JButton("Transfer money Out");
         buttonTransferMoneyOut.setFont(buttonTransferMoneyOut.getFont().deriveFont(40f));
@@ -328,6 +332,17 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttonwithdraw.setFont(buttonwithdraw.getFont().deriveFont(40f));
         buttonwithdraw.addActionListener(withdrawmoney);
 
+        JButton buttondeposit = new JButton("Deposit");
+        buttondeposit.setFont(buttondeposit.getFont().deriveFont(40f));
+        buttondeposit.addActionListener(deposit);
+
+        JButton buttontransactionHistory = new JButton("Transaction History");
+        buttontransactionHistory.setFont(buttontransactionHistory.getFont().deriveFont(40f));
+        buttontransactionHistory.addActionListener(e -> {
+            frame.dispose();
+            //it should be on a Account or on a User
+            CreateGUI_TransactionHistory(user,selectedAccount[0]);
+        });
 
         constraints.gridx = 1;
         constraints.gridy = 0;
@@ -355,11 +370,19 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         constraints.gridx = 1;
         constraints.gridy = 6;
+        panel.add(buttondeposit, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 7;
+        panel.add(buttontransactionHistory, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 8;
         panel.add(buttonLogout, constraints);
 
         constraints.gridx = 3;
         constraints.gridy = 0;
-        constraints.gridheight = 7;
+        constraints.gridheight = 9;
         panel.add(scrollPane, constraints);
 
         frame.add(panel);
@@ -367,7 +390,7 @@ public class GUI implements ActionListener, ListSelectionListener {
     }
 
 
-            public static void CreateGUIRegistration(){
+    public static void CreateGUI_Registration(){
         //i would like for this function to do the same as the one above but with a different layout using GridBagConstraints, it is great but can we have wider textfields
 
         JFrame frame = new JFrame("Bank");
@@ -506,6 +529,50 @@ public class GUI implements ActionListener, ListSelectionListener {
         panel.add(buttonback, constraints);
 
         frame.add(panel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+
+    private static void CreateGUI_TransactionHistory(User user, Account account){
+        JFrame frame = new JFrame("Bank");
+        frame.setSize(WIDTH, HEIGHT);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        JTextArea textArea = new JTextArea();
+        textArea.setFont(textArea.getFont().deriveFont(40f));
+        textArea.setEditable(false);
+
+
+        JList<Object> Transactions = new JList<>();
+        Transactions.setFont(Transactions.getFont().deriveFont(40f));
+        Transactions.setCellRenderer(new AccountRenderer());
+        Transactions.setListData(account.GetTransactions().toArray());
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(1000, 1000));
+
+        JButton buttonexit = new JButton("Exit");
+        buttonexit.setFont(buttonexit.getFont().deriveFont(40f));
+        buttonexit.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_Login();
+        });
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(10, 10, 10, 10);
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        panel.add(scrollPane, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        panel.add(buttonexit, constraints);
+
+        frame.add(panel);
         frame.setVisible(true);
     }
 
