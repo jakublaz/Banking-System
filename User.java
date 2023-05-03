@@ -10,10 +10,10 @@ public class User {
     private final String name;
     private final String surname;
     private final String login;
-    private String password;
+    private final String password;
     private int age;
     private double money;
-    private List<Account> accounts;
+    private final List<Account> accounts;
 
 
     public User(String name, String surname, String login, String password, int age) {
@@ -73,7 +73,7 @@ public class User {
         return true;
     }
 
-    private @Nullable Account FindAccount(int ID) {
+    public @Nullable Account FindAccount(int ID) {
         for (Account account : accounts) {
             if (account.GetID() == ID) {
                 return account;
@@ -84,18 +84,6 @@ public class User {
 
     public boolean TransferMoney_ToAccount(int ID, double money) {
         Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney() + money);
-        return true;
-    }
-
-    private boolean TransferMoney_ToUser(int ID, double money) {
-        if (FindAccount(ID) == null) {
-            return false;
-        }
-        if (Objects.requireNonNull(FindAccount(ID)).GetMoney() < money) {
-            return false;
-        }
-        this.money += money;
-        Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney() - money);
         return true;
     }
 
@@ -120,7 +108,8 @@ public class User {
             return false;
         }
         if(Objects.requireNonNull(FindAccount(ID)).GetMoney() != 0){
-            TransferMoney_ToUser(ID, Objects.requireNonNull(FindAccount(ID)).GetMoney());
+            JOptionPane.showMessageDialog(null, "You can't close account with money on it", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
         accounts.remove(FindAccount(ID));
         return true;
@@ -175,4 +164,8 @@ public class User {
         return this.money;
     }
 
+    public boolean WithdrawMoney(int getID, double money) {
+        this.money -= money;
+        return true;
+    }
 }

@@ -6,12 +6,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class GUI implements ActionListener, ListSelectionListener {
     String name = "Banking Friend";
     static ArrayList<User> Users = new ArrayList<>();
-    static final int WIDTH = 1920;
-    static final int HEIGHT = 1080;
+    static final int WIDTH = 2560;
+    static final int HEIGHT = 1440;
 
     public static boolean CreateUser(String name, String surname, String login, String password, int age) {
         if(Users.stream().anyMatch(user -> user.GetLogin().equals(login))){
@@ -33,6 +34,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         a.AddAccount(1);
         a.AddAccount(2);
         CreateGUI_Login();
+//        CreateGUI_MainMenu(a);
     }
 
     static @Nullable User CheckCredentials(String login, String password){
@@ -183,7 +185,33 @@ public class GUI implements ActionListener, ListSelectionListener {
         });
 
         JScrollPane scrollPane = new JScrollPane(Accounts);
-        scrollPane.setPreferredSize(new Dimension(600, 1000));
+        scrollPane.setPreferredSize(new Dimension(600, 900));
+
+        ActionListener withdrawmoney = e -> {
+            if(selectedAccount[0]==null){
+                JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money from", "Information", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            double money=0;
+            try{
+                money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transfer?", "Withdraw money", JOptionPane.PLAIN_MESSAGE));
+            }catch(Exception exception){
+                JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            if(money<=0){
+                JOptionPane.showMessageDialog(null, "You have to write number bigger than 0", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            if(Objects.requireNonNull(user.FindAccount(selectedAccount[0].GetID())).GetMoney()<money){
+                JOptionPane.showMessageDialog(null, "You do not have enough money", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if(user.WithdrawMoney(selectedAccount[0].GetID(),money)){
+                JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
+                selectedAccount[0].SetMoney(selectedAccount[0].GetMoney()-money);
+                Accounts.setListData(user.GetAccounts().toArray());
+                user.ShowUserData(panel);
+            }
+        };
 
         JButton buttonCreateAccount = new JButton("Create Account");
         buttonCreateAccount.setFont(buttonCreateAccount.getFont().deriveFont(40f));
@@ -208,7 +236,9 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null, "You have to choose the account to want to close", "Information", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            user.CloseAccount(selectedAccount[0].GetID());
+            if(!user.CloseAccount(selectedAccount[0].GetID())){
+                return;
+            }
             JOptionPane.showMessageDialog(null,"The account has been closed","Information", JOptionPane.INFORMATION_MESSAGE);
             Accounts.setListData(user.GetAccounts().toArray());
         });
@@ -238,13 +268,66 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         JButton buttonTransferMoneyOut = new JButton("Transfer money Out");
         buttonTransferMoneyOut.setFont(buttonTransferMoneyOut.getFont().deriveFont(40f));
+        buttonTransferMoneyOut.addActionListener(withdrawmoney);
 
-        JButton buttonLogout = new JButton("Logout");
+
+        JButton buttonLogout = new JButton("Log out");
         buttonLogout.setFont(buttonLogout.getFont().deriveFont(40f));
         buttonLogout.addActionListener(e -> {
             frame.dispose();
             CreateGUI_Login();
         });
+
+        JButton buttonTransferMoney = new JButton("Transfer money");
+        buttonTransferMoney.setFont(buttonTransferMoney.getFont().deriveFont(40f));
+        buttonTransferMoney.addActionListener(e -> {
+            if(Accounts.getModel().getSize() == 0){
+                JOptionPane.showMessageDialog(null, "You have to create at least one account", "Information", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            JTextField id1 = new JTextField();
+            JTextField id2 = new JTextField();
+            JTextField money = new JTextField();
+            Object[] message = {
+                    "ID of the account you want to transfer money from:", id1,
+                    "ID of the account you want to transfer money to:", id2,
+                    "How much money do you want to transfer:", money
+            };
+
+            int option = JOptionPane.showConfirmDialog(null, message, "Transfer money", JOptionPane.OK_CANCEL_OPTION);
+
+            if(option==JOptionPane.OK_OPTION) {
+                int ID1 = Integer.parseInt(id1.getText());
+                int ID2 = Integer.parseInt(id2.getText());
+                double Money = Double.parseDouble(money.getText());
+
+                if(user.FindAccount(ID1)==null){
+                    JOptionPane.showMessageDialog(null, "One of the accounts does not exist", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if(user.FindAccount(ID2)==null){
+                    JOptionPane.showMessageDialog(null, "One of the accounts does not exist", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if(Money <= 0){
+                    JOptionPane.showMessageDialog(null, "Money must be bigger than 0", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if(Objects.requireNonNull(user.FindAccount(ID1)).GetMoney() < Money){
+                    JOptionPane.showMessageDialog(null, "You do not have enough money", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if(user.TransferMoney_BetweenAccounts(ID1, ID2, Money)){
+                    JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
+                    Accounts.setListData(user.GetAccounts().toArray());
+                }
+            }
+        });
+
+        JButton buttonwithdraw = new JButton("Withdraw");
+        buttonwithdraw.setFont(buttonwithdraw.getFont().deriveFont(40f));
+        buttonwithdraw.addActionListener(withdrawmoney);
+
 
         constraints.gridx = 1;
         constraints.gridy = 0;
@@ -264,11 +347,19 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         constraints.gridx = 1;
         constraints.gridy = 4;
+        panel.add(buttonTransferMoney, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 5;
+        panel.add(buttonwithdraw, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 6;
         panel.add(buttonLogout, constraints);
 
-        constraints.gridx = 2;
+        constraints.gridx = 3;
         constraints.gridy = 0;
-        constraints.gridheight = 5;
+        constraints.gridheight = 7;
         panel.add(scrollPane, constraints);
 
         frame.add(panel);
@@ -417,7 +508,6 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.add(panel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
