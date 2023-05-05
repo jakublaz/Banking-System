@@ -119,7 +119,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
     }
 
-    static class AccountRenderer extends DefaultListCellRenderer {
+    static class AccountRenderer1 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                       boolean isSelected, boolean cellHasFocus) {
@@ -128,6 +128,19 @@ public class GUI implements ActionListener, ListSelectionListener {
             label.setText("Account ID: " + account.GetID() + ", Money: " + account.GetMoney());
             return label;
         }
+
+    }
+
+    static class AccountRenderer2 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                      boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
+            Transaction transaction = (Transaction) value;
+            label.setText("From : "+ transaction.GetID_A1() + "  To : "+ transaction.GetID_A2()+ "  Money : "+ transaction.GetMoney() + "  Type : " + transaction.GetType());
+            return label;
+        }
+
     }
 
     private static void CreateGUI_MainMenu(User user) {
@@ -176,7 +189,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
-        Accounts.setCellRenderer(new AccountRenderer());
+        Accounts.setCellRenderer(new AccountRenderer1());
         Accounts.setListData(user.GetAccounts().toArray());
         Accounts.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -197,9 +210,11 @@ public class GUI implements ActionListener, ListSelectionListener {
                 money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transfer?", "Withdraw money", JOptionPane.PLAIN_MESSAGE));
             }catch(Exception exception){
                 JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             if(money<=0){
                 JOptionPane.showMessageDialog(null, "You have to write number bigger than 0", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             if(Objects.requireNonNull(user.FindAccount(selectedAccount[0].GetID())).GetMoney()<money){
                 JOptionPane.showMessageDialog(null, "You do not have enough money", "Error", JOptionPane.ERROR_MESSAGE);
@@ -339,6 +354,10 @@ public class GUI implements ActionListener, ListSelectionListener {
         JButton buttontransactionHistory = new JButton("Transaction History");
         buttontransactionHistory.setFont(buttontransactionHistory.getFont().deriveFont(40f));
         buttontransactionHistory.addActionListener(e -> {
+            if(selectedAccount[0] == null){//just for now
+                JOptionPane.showMessageDialog(null, "Not ready right now");
+                return;
+            }
             frame.dispose();
             //it should be on a Account or on a User
             CreateGUI_TransactionHistory(user,selectedAccount[0]);
@@ -538,23 +557,18 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        JTextArea textArea = new JTextArea();
-        textArea.setFont(textArea.getFont().deriveFont(40f));
-        textArea.setEditable(false);
-
-
         JList<Object> Transactions = new JList<>();
         Transactions.setFont(Transactions.getFont().deriveFont(40f));
-        Transactions.setCellRenderer(new AccountRenderer());
+        Transactions.setCellRenderer(new AccountRenderer2());
         Transactions.setListData(account.GetTransactions().toArray());
 
-        JScrollPane scrollPane = new JScrollPane(textArea);
+        JScrollPane scrollPane = new JScrollPane(Transactions);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(1000, 1000));
 
-        JButton buttonexit = new JButton("Exit");
-        buttonexit.setFont(buttonexit.getFont().deriveFont(40f));
-        buttonexit.addActionListener(e -> {
+        JButton buttonlogout = new JButton("Log out");
+        buttonlogout.setFont(buttonlogout.getFont().deriveFont(40f));
+        buttonlogout.addActionListener(e -> {
             frame.dispose();
             CreateGUI_Login();
         });
@@ -570,7 +584,9 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         constraints.gridx = 0;
         constraints.gridy = 1;
-        panel.add(buttonexit, constraints);
+        panel.add(buttonlogout, constraints);
+
+        //button back
 
         frame.add(panel);
         frame.setVisible(true);
