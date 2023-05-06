@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class GUI implements ActionListener, ListSelectionListener {
@@ -112,35 +113,6 @@ public class GUI implements ActionListener, ListSelectionListener {
         panel.add(buttonregister, constraints);
 
         frame.setVisible(true);
-    }
-
-    @Override
-    public void valueChanged(ListSelectionEvent e) {
-
-    }
-
-    static class AccountRenderer1 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                      boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
-            Account account = (Account) value;
-            label.setText("Account ID: " + account.GetID() + ", Money: " + account.GetMoney());
-            return label;
-        }
-
-    }
-
-    static class AccountRenderer2 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                      boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
-            Transaction transaction = (Transaction) value;
-            label.setText("From : "+ transaction.GetID_A1() + "  To : "+ transaction.GetID_A2()+ "  Money : "+ transaction.GetMoney() + "  Type : " + transaction.GetType());
-            return label;
-        }
-
     }
 
     private static void CreateGUI_MainMenu(User user) {
@@ -354,10 +326,6 @@ public class GUI implements ActionListener, ListSelectionListener {
         JButton buttontransactionHistory = new JButton("Transaction History");
         buttontransactionHistory.setFont(buttontransactionHistory.getFont().deriveFont(40f));
         buttontransactionHistory.addActionListener(e -> {
-            if(selectedAccount[0] == null){//just for now
-                JOptionPane.showMessageDialog(null, "Not ready right now");
-                return;
-            }
             frame.dispose();
             //it should be on a Account or on a User
             CreateGUI_TransactionHistory(user,selectedAccount[0]);
@@ -560,7 +528,16 @@ public class GUI implements ActionListener, ListSelectionListener {
         JList<Object> Transactions = new JList<>();
         Transactions.setFont(Transactions.getFont().deriveFont(40f));
         Transactions.setCellRenderer(new AccountRenderer2());
-        Transactions.setListData(account.GetTransactions().toArray());
+        if(account!=null){
+            Transactions.setListData(account.GetTransactions().toArray());
+        }else{
+            List<Transaction> transactions= new ArrayList<>();
+            List<Account> accounts = user.GetAccounts();
+            for(Account a : accounts){
+                transactions.addAll(a.GetTransactions());
+            }
+            Transactions.setListData(transactions.toArray());
+        }
 
         JScrollPane scrollPane = new JScrollPane(Transactions);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -571,6 +548,13 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttonlogout.addActionListener(e -> {
             frame.dispose();
             CreateGUI_Login();
+        });
+
+        JButton buttonback = new JButton("Back");
+        buttonback.setFont(buttonback.getFont().deriveFont(40f));
+        buttonback.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_MainMenu(user);
         });
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -586,10 +570,41 @@ public class GUI implements ActionListener, ListSelectionListener {
         constraints.gridy = 1;
         panel.add(buttonlogout, constraints);
 
-        //button back
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        panel.add(buttonback,constraints);
 
         frame.add(panel);
         frame.setVisible(true);
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+
+    }
+
+    static class AccountRenderer1 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                      boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
+            Account account = (Account) value;
+            label.setText("Account ID: " + account.GetID() + ", Money: " + account.GetMoney());
+            return label;
+        }
+
+    }
+
+    static class AccountRenderer2 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                      boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
+            Transaction transaction = (Transaction) value;
+            label.setText("From : "+ transaction.GetID_A1() + "  To : "+ transaction.GetID_A2()+ "  Money : "+ transaction.GetMoney() + "  Type : " + transaction.GetType());
+            return label;
+        }
+
     }
 
     @Override
