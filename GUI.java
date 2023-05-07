@@ -1,10 +1,14 @@
 import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +57,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel panel = new JPanel(new GridBagLayout());
         frame.add(panel, BorderLayout.CENTER);
@@ -120,6 +125,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel panel = new JPanel(new GridBagLayout());
         frame.add(panel, BorderLayout.CENTER);
@@ -208,13 +214,21 @@ public class GUI implements ActionListener, ListSelectionListener {
                 return;
             }
             double money=0;
+            String smoney = "";
             try{
-                money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transefer from other bank?", "Transfer money", JOptionPane.PLAIN_MESSAGE));
+               smoney = JOptionPane.showInputDialog(null,"How much money do you want to transefer from other bank?", "Transfer money", JOptionPane.PLAIN_MESSAGE);
+               money = Double.parseDouble(smoney);
             }catch(Exception exception){
+                if(smoney==null){
+                    return;
+                }
                 JOptionPane.showMessageDialog(null, "You have to write number", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             user.TransferMoney_ToAccount(selectedAccount[0].GetID(),money);
-            user.SetMoney(user.GetMoney()+money);       //to jest ok, problem przy zamykaniu konta, musi być 0 i bediz eok
+            user.SetMoney(user.GetMoney()+money);
+            Transaction transaction = new Transaction(0, selectedAccount[0].GetID(), money,"deposit");
+            selectedAccount[0].AddTransaction(transaction);
             user.ShowUserData(panel);
             frame.add(panel, BorderLayout.CENTER);
             frame.revalidate();
@@ -384,6 +398,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JLabel labelname = new JLabel("Name");
         labelname.setFont(labelname.getFont().deriveFont(40f));
@@ -524,6 +539,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JList<Object> Transactions = new JList<>();
         Transactions.setFont(Transactions.getFont().deriveFont(40f));
