@@ -1,12 +1,10 @@
 import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -38,6 +36,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         User a = Users.get(0);
         a.AddAccount(1);
         a.AddAccount(2);
+
 //        CreateGUI_Login();
         CreateGUI_MainMenu(a);
     }
@@ -143,23 +142,39 @@ public class GUI implements ActionListener, ListSelectionListener {
         JLabel labelmoney = new JLabel("Money: " + user.GetMoney());
         labelmoney.setName("labelmoney");
 
+        JLabel timelabel = new JLabel();
+        timelabel.setName("timelabel");
+        timelabel.setFont(timelabel.getFont().deriveFont(40f));
+
+        Timer timer = new Timer(0, e -> {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formattedDateTime = currentDateTime.format(formatter);
+            timelabel.setText(formattedDateTime);
+        });
+        timer.start();
+
         constraints.gridx = 0;
         constraints.gridy = 0;
+        panel.add(timelabel,constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
         labelname.setFont(labelname.getFont().deriveFont(40f));
         panel.add(labelname, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridy = 2;
         labelsurname.setFont(labelsurname.getFont().deriveFont(40f));
         panel.add(labelsurname, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 2;
+        constraints.gridy = 3;
         labelage.setFont(labelage.getFont().deriveFont(40f));
         panel.add(labelage, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 3;
+        constraints.gridy = 4;
         labelmoney.setFont(labelmoney.getFont().deriveFont(40f));
         panel.add(labelmoney, constraints);
 
@@ -241,16 +256,24 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttonCreateAccount.setFont(buttonCreateAccount.getFont().deriveFont(40f));
         buttonCreateAccount.addActionListener(e -> {
             String userInput = (String) JOptionPane.showInputDialog(null, "Tell the ID", "Create Account", JOptionPane.PLAIN_MESSAGE, null, null, "");
-            if(userInput != null){
-                int id = Integer.parseInt(userInput);
-                if(user.AddAccount(id)){
-                    JOptionPane.showMessageDialog(null, "Account created successfully");
-                }
-                else{
-                    JOptionPane.showMessageDialog(null, "Account with this ID already exists");
-                }
-                Accounts.setListData(user.GetAccounts().toArray());
+            int id=0;
+            try{
+                id = Integer.parseInt(userInput);
+            }catch(Exception exception){
+                JOptionPane.showMessageDialog(null,"You have to enter a number");
+                return;
             }
+            if(id<=0){
+                JOptionPane.showMessageDialog(null,"Number must be bigger than 0");
+                return;
+            }
+            if(user.AddAccount(id)){
+                JOptionPane.showMessageDialog(null, "Account created successfully");
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "Account with this ID already exists");
+            }
+            Accounts.setListData(user.GetAccounts().toArray());
         });
 
         JButton buttonCloseAccount = new JButton("Close Account");
