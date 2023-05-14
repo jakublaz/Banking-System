@@ -5,17 +5,23 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+//nie daje historii do transfer beetween accounts
+//gdy sie zamknie create accoutn daje informacje o liczbie
+
 public class GUI implements ActionListener, ListSelectionListener {
     String name = "Banking Friend";
     static ArrayList<User> Users = new ArrayList<>();
     static final int WIDTH = 2560;
     static final int HEIGHT = 1440;
+    static HashMap<String,Double> Rates = new HashMap<>();
 
     public static boolean CreateUser(String name, String surname, String login, String password, int age) {
         if(Users.stream().anyMatch(user -> user.GetLogin().equals(login))){
@@ -37,7 +43,10 @@ public class GUI implements ActionListener, ListSelectionListener {
         a.AddAccount(1);
         a.AddAccount(2);
 
-//        CreateGUI_Login();
+//        CurrencyExchange c = new CurrencyExchange();
+//        c.PrintRates();
+
+        //CreateGUI_Login();
         CreateGUI_MainMenu(a);
     }
 
@@ -615,6 +624,11 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         frame.add(panel);
         frame.setVisible(true);
+    }
+
+    public void UpdateRates(){
+        CurrencyExchange c= new CurrencyExchange();
+        Rates = c.GetRates();
     }
 
     @Override
