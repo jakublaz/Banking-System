@@ -192,7 +192,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
         Accounts.setCellRenderer(new AccountRenderer1());
-        Accounts.setListData(user.GetAccounts().toArray());
+        Accounts.setListData(user.GetAccountsPolish().toArray());
         Accounts.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 selectedAccount[0] = (Account) Accounts.getSelectedValue();
@@ -227,7 +227,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 selectedAccount[0].SetMoney(selectedAccount[0].GetMoney()-money);
                 Transaction transaction = new Transaction(selectedAccount[0].GetID(), 0,money,"Withdraw");
                 selectedAccount[0].AddTransaction(transaction);
-                Accounts.setListData(user.GetAccounts().toArray());
+                Accounts.setListData(user.GetAccountsPolish().toArray());
                 user.ShowUserData(panel);
             }
         };
@@ -257,7 +257,7 @@ public class GUI implements ActionListener, ListSelectionListener {
             frame.add(panel, BorderLayout.CENTER);
             frame.revalidate();
             frame.repaint();
-            Accounts.setListData(user.GetAccounts().toArray());
+            Accounts.setListData(user.GetAccountsPolish().toArray());
             JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
         };
 
@@ -282,7 +282,7 @@ public class GUI implements ActionListener, ListSelectionListener {
             else{
                 JOptionPane.showMessageDialog(null, "Account with this ID already exists");
             }
-            Accounts.setListData(user.GetAccounts().toArray());
+            Accounts.setListData(user.GetAccountsPolish().toArray());
         });
 
         JButton buttonCloseAccount = new JButton("Close Account");
@@ -296,7 +296,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 return;
             }
             JOptionPane.showMessageDialog(null,"The account has been closed","Information", JOptionPane.INFORMATION_MESSAGE);
-            Accounts.setListData(user.GetAccounts().toArray());
+            Accounts.setListData(user.GetAccountsPolish().toArray());
         });
 
         JButton buttonTransferMoneyIn = new JButton("Transfer money In");
@@ -356,7 +356,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 }
                 if(user.TransferMoney_BetweenAccounts(ID1, ID2, Money)){
                     JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
-                    Accounts.setListData(user.GetAccounts().toArray());
+                    Accounts.setListData(user.GetAccountsPolish().toArray());
                 }
             }
         });
@@ -375,6 +375,14 @@ public class GUI implements ActionListener, ListSelectionListener {
             frame.dispose();
             //it should be on a Account or on a User
             CreateGUI_TransactionHistory(user,selectedAccount[0]);
+        });
+
+
+        JButton buttoncurrency = new JButton("Other currency");
+        buttoncurrency.setFont(buttoncurrency.getFont().deriveFont(40f));
+        buttoncurrency.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_OtherCurrency(user);
         });
 
         constraints.gridx = 1;
@@ -411,11 +419,15 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         constraints.gridx = 1;
         constraints.gridy = 8;
+        panel.add(buttoncurrency,constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 9;
         panel.add(buttonLogout, constraints);
 
         constraints.gridx = 3;
         constraints.gridy = 0;
-        constraints.gridheight = 9;
+        constraints.gridheight = 10;
         panel.add(scrollPane, constraints);
 
         frame.add(panel);
@@ -567,7 +579,7 @@ public class GUI implements ActionListener, ListSelectionListener {
     }
 
     private static void CreateGUI_TransactionHistory(User user, Account account){
-        JFrame frame = new JFrame("Bank");
+        JFrame frame = new JFrame("Transaction History");
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -580,7 +592,7 @@ public class GUI implements ActionListener, ListSelectionListener {
             Transactions.setListData(account.GetTransactions().toArray());
         }else{
             List<Transaction> transactions= new ArrayList<>();
-            List<Account> accounts = user.GetAccounts();
+            List<Account> accounts = user.GetAccountsPolish();
             for(Account a : accounts){
                 transactions.addAll(a.GetTransactions());
             }
@@ -626,7 +638,60 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setVisible(true);
     }
 
-    public void UpdateRates(){
+    private static void CreateGUI_OtherCurrency(User user){
+        UpdateRates();
+        JFrame frame = new JFrame("Currency");
+        frame.setSize(WIDTH, HEIGHT);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(10, 10, 10, 10);
+
+        JList<Object> Currency = new JList<>();
+        Currency.setFont(Currency.getFont().deriveFont(40f));
+        //Currency.setCellRenderer();
+        Currency.setListData(Rates.entrySet().toArray());
+
+        JScrollPane scrollPane = new JScrollPane(Currency);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(400, 1000));
+
+        JButton buttonlogout = new JButton("Log out");
+        buttonlogout.setFont(buttonlogout.getFont().deriveFont(40f));
+        buttonlogout.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_Login();
+        });
+
+        JButton buttonback = new JButton("Back");
+        buttonback.setFont(buttonback.getFont().deriveFont(40f));
+        buttonback.addActionListener(e -> {
+            frame.dispose();
+            CreateGUI_MainMenu(user);
+        });
+
+        constraints.gridx = 1;
+        constraints.gridy = 8;
+        panel.add(buttonback,constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 9;
+        panel.add(buttonlogout,constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridheight = 11;
+        panel.add(scrollPane,constraints);
+
+        frame.add(panel,BorderLayout.WEST);
+        frame.setVisible(true);
+    }
+
+    public static void UpdateRates(){
         CurrencyExchange c= new CurrencyExchange();
         Rates = c.GetRates();
     }

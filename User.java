@@ -2,9 +2,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 public class User {
     private final String name;
@@ -13,7 +12,8 @@ public class User {
     private final String password;
     private int age;
     private double money;
-    private final List<Account> accounts;
+    private final List<Account> accountsPolish;
+    private final Map<String,Account> accountsOther;
 
 
     public User(String name, String surname, String login, String password, int age) {
@@ -23,7 +23,8 @@ public class User {
         this.age = age;
         this.surname = surname;
         this.money = 0;
-        accounts = new ArrayList<>();
+        accountsPolish = new ArrayList<>();
+        accountsOther = new HashMap<>();
     }
 
     public User(String name, String surname, String login, String password, int age, double money) {
@@ -33,7 +34,8 @@ public class User {
         this.age = age;
         this.surname = surname;
         this.money = money;
-        accounts = new ArrayList<>();
+        accountsPolish = new ArrayList<>();
+        accountsOther = new HashMap<>();
     }
 
     public void SetMoney(double money) {
@@ -69,12 +71,12 @@ public class User {
             return false;
         }
         Account account = new Account(ID);
-        accounts.add(account);
+        accountsPolish.add(account);
         return true;
     }
 
     public @Nullable Account FindAccount(int ID) {
-        for (Account account : accounts) {
+        for (Account account : accountsPolish) {
             if (account.GetID() == ID) {
                 return account;
             }
@@ -111,7 +113,7 @@ public class User {
             JOptionPane.showMessageDialog(null, "You can't close account with money on it", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        accounts.remove(FindAccount(ID));
+        accountsPolish.remove(FindAccount(ID));
         return true;
 
     }
@@ -120,8 +122,12 @@ public class User {
         return password;
     }
 
-    public List<Account> GetAccounts() {
-        return accounts;
+    public List<Account> GetAccountsPolish() {
+        return accountsPolish;
+    }
+
+    public Map<String,Account> GetAccountsOther(){
+        return accountsOther;
     }
 
     public void ShowUserData(JPanel panel){
