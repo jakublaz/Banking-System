@@ -1,15 +1,15 @@
 import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,11 +17,12 @@ import java.util.Objects;
 //gdy sie zamknie create accoutn daje informacje o liczbie
 
 public class GUI implements ActionListener, ListSelectionListener {
-    String name = "Banking Friend";
-    static ArrayList<User> Users = new ArrayList<>();
-    static final int WIDTH = 2560;
-    static final int HEIGHT = 1440;
-    static HashMap<String,Double> Rates = new HashMap<>();
+    private static final CurrencyExchange c = new CurrencyExchange();
+    private final String name = "Banking Friend";
+    private final static ArrayList<User> Users = new ArrayList<>();
+    private static final int WIDTH = 2560;
+    private static final int HEIGHT = 1440;
+    private static HashMap<String,Double> Rates = new HashMap<>();
 
     public static boolean CreateUser(String name, String surname, String login, String password, int age) {
         if(Users.stream().anyMatch(user -> user.GetLogin().equals(login))){
@@ -38,6 +39,7 @@ public class GUI implements ActionListener, ListSelectionListener {
     }
 
     public static void main(String[] args) {
+        //c.SetUpConnection();
         CreateUser("a","a","a","a",18); //just for testing
         User a = Users.get(0);
         a.AddAccount(1);
@@ -691,8 +693,8 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setVisible(true);
     }
 
-    public static void UpdateRates(){
-        CurrencyExchange c= new CurrencyExchange();
+    private static void UpdateRates(){
+        c.UpdateRates();
         Rates = c.GetRates();
     }
 

@@ -14,15 +14,16 @@ import java.util.HashMap;
 
 public class CurrencyExchange {
     static HashMap<String,Double> Rates = new HashMap<>();
+    private HttpURLConnection conn;
 
     public CurrencyExchange(){
-        UpdateRates();
+        SetUpConnection();
     }
 
-    public void UpdateRates() {
-        try {
+    public void SetUpConnection(){
+        try{
             URL url = new URL("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
             // Set connection timeout to 5 seconds
@@ -35,7 +36,13 @@ public class CurrencyExchange {
             if (conn.getResponseCode() != 200) {
                 throw new IOException("HTTP error code: " + conn.getResponseCode());
             }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
+    public void UpdateRates() {
+        try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -55,7 +62,6 @@ public class CurrencyExchange {
                     }
                 }
             }
-
             conn.disconnect();
         } catch (IOException | ParserConfigurationException | SAXException e) {
             System.out.println("Error: " + e.getMessage());
