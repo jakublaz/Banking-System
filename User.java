@@ -1,9 +1,8 @@
 import org.jetbrains.annotations.Nullable;
-
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class User {
     private final String name;
@@ -170,8 +169,11 @@ public class User {
         return this.money;
     }
 
-    public boolean WithdrawMoney(int getID, double money) {
+    public boolean WithdrawMoney(int ID, double money) {
+        Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney()-money);
         this.money -= money;
+        Transaction transaction = new Transaction(ID, 0,money,"Withdraw");
+        Objects.requireNonNull(FindAccount(ID)).AddTransaction(transaction);
         return true;
     }
 }

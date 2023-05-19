@@ -1,5 +1,4 @@
 import org.jetbrains.annotations.Nullable;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -12,9 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
-//nie daje historii do transfer beetween accounts
-//gdy sie zamknie create accoutn daje informacje o liczbie
 
 public class GUI implements ActionListener, ListSelectionListener {
     private static final CurrencyExchange c = new CurrencyExchange();
@@ -39,14 +35,10 @@ public class GUI implements ActionListener, ListSelectionListener {
     }
 
     public static void main(String[] args) {
-        //c.SetUpConnection();
         CreateUser("a","a","a","a",18); //just for testing
         User a = Users.get(0);
         a.AddAccount(1);
         a.AddAccount(2);
-
-//        CurrencyExchange c = new CurrencyExchange();
-//        c.PrintRates();
 
         //CreateGUI_Login();
         CreateGUI_MainMenu(a);
@@ -209,7 +201,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money from", "Information", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            double money=0;
+            double money;
             try{
                 money = Double.parseDouble(JOptionPane.showInputDialog(null,"How much money do you want to transfer?", "Withdraw money", JOptionPane.PLAIN_MESSAGE));
             }catch(Exception exception){
@@ -226,9 +218,6 @@ public class GUI implements ActionListener, ListSelectionListener {
             }
             if(user.WithdrawMoney(selectedAccount[0].GetID(),money)){
                 JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
-                selectedAccount[0].SetMoney(selectedAccount[0].GetMoney()-money);
-                Transaction transaction = new Transaction(selectedAccount[0].GetID(), 0,money,"Withdraw");
-                selectedAccount[0].AddTransaction(transaction);
                 Accounts.setListData(user.GetAccountsPolish().toArray());
                 user.ShowUserData(panel);
             }
@@ -239,7 +228,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null, "You have to choose the account to want to transfer money to", "Information", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            double money=0;
+            double money;
             String smoney = "";
             try{
                smoney = JOptionPane.showInputDialog(null,"How much money do you want to transefer from other bank?", "Transfer money", JOptionPane.PLAIN_MESSAGE);
@@ -267,7 +256,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttonCreateAccount.setFont(buttonCreateAccount.getFont().deriveFont(40f));
         buttonCreateAccount.addActionListener(e -> {
             String userInput = (String) JOptionPane.showInputDialog(null, "Tell the ID", "Create Account", JOptionPane.PLAIN_MESSAGE, null, null, "");
-            int id=0;
+            int id;
             try{
                 id = Integer.parseInt(userInput);
             }catch(Exception exception){
@@ -375,7 +364,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         buttontransactionHistory.setFont(buttontransactionHistory.getFont().deriveFont(40f));
         buttontransactionHistory.addActionListener(e -> {
             frame.dispose();
-            //it should be on a Account or on a User
+            //it should be on an Account or on a User
             CreateGUI_TransactionHistory(user,selectedAccount[0]);
         });
 

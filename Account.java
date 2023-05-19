@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 public class Account {
     private final int ID;
     private double money;
