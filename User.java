@@ -11,8 +11,7 @@ public class User {
     private final String password;
     private int age;
     private double money;
-    private final List<Account> accountsPolish;
-    private final Map<String,Account> accountsOther;
+    private final List<Account> accountsOther;
 
 
     public User(String name, String surname, String login, String password, int age) {
@@ -22,8 +21,7 @@ public class User {
         this.age = age;
         this.surname = surname;
         this.money = 0;
-        accountsPolish = new ArrayList<>();
-        accountsOther = new HashMap<>();
+        accountsOther = new ArrayList<>();
     }
 
     public User(String name, String surname, String login, String password, int age, double money) {
@@ -33,8 +31,7 @@ public class User {
         this.age = age;
         this.surname = surname;
         this.money = money;
-        accountsPolish = new ArrayList<>();
-        accountsOther = new HashMap<>();
+        accountsOther = new ArrayList<>();
     }
 
     public void SetMoney(double money) {
@@ -65,17 +62,17 @@ public class User {
         return this.login;
     }
 
-    public boolean AddAccount(int ID) {
+    public boolean AddAccount(int ID,String currency) {
         if(FindAccount(ID) != null){
             return false;
         }
-        Account account = new Account(ID);
-        accountsPolish.add(account);
+        Account account = new Account(ID, currency);
+        accountsOther.add(account);
         return true;
     }
 
     public @Nullable Account FindAccount(int ID) {
-        for (Account account : accountsPolish) {
+        for (Account account : accountsOther) {
             if (account.GetID() == ID) {
                 return account;
             }
@@ -112,7 +109,7 @@ public class User {
             JOptionPane.showMessageDialog(null, "You can't close account with money on it", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        accountsPolish.remove(FindAccount(ID));
+        accountsOther.remove(FindAccount(ID));
         return true;
 
     }
@@ -122,10 +119,18 @@ public class User {
     }
 
     public List<Account> GetAccountsPolish() {
-        return accountsPolish;
+        List<Account> polishAccounts = new ArrayList<>();
+
+        for (Account account : accountsOther) {
+            if (account.GetCurrency().equals("PLN")) {
+                polishAccounts.add(account);
+            }
+        }
+
+        return polishAccounts;
     }
 
-    public Map<String,Account> GetAccountsOther(){
+    public List<Account> GetAccountsOther(){
         return accountsOther;
     }
 
@@ -169,7 +174,7 @@ public class User {
         return this.money;
     }
 
-    public boolean WithdrawMoney(int ID, double money) {
+    public boolean WithdrawMoneyPolish(int ID, double money) {
         Objects.requireNonNull(FindAccount(ID)).SetMoney(Objects.requireNonNull(FindAccount(ID)).GetMoney()-money);
         this.money -= money;
         Transaction transaction = new Transaction(ID, 0,money,"Withdraw");

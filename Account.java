@@ -4,9 +4,11 @@ public class Account {
     private final int ID;
     private double money;
     private final List<Transaction> transactions;
+    private final String currency;
 
-    public  Account(int ID){
+    public  Account(int ID, String currency){
         this.ID = ID;
+        this.currency = currency;
         money=0;
         transactions = new ArrayList<>();
     }
@@ -38,5 +40,9 @@ public class Account {
 
     public List<Transaction> GetTransactions() {
         return transactions;
+    }
+
+    public String GetCurrency(){
+        return currency;
     }
 }

@@ -1,5 +1,6 @@
 import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -7,10 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 public class GUI implements ActionListener, ListSelectionListener {
     private static final CurrencyExchange c = new CurrencyExchange();
@@ -37,8 +36,8 @@ public class GUI implements ActionListener, ListSelectionListener {
     public static void main(String[] args) {
         CreateUser("a","a","a","a",18); //just for testing
         User a = Users.get(0);
-        a.AddAccount(1);
-        a.AddAccount(2);
+        a.AddAccount(1,"PLN");
+        a.AddAccount(2,"ZL");
 
         //CreateGUI_Login();
         CreateGUI_MainMenu(a);
@@ -185,7 +184,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
-        Accounts.setCellRenderer(new AccountRenderer1());
+        Accounts.setCellRenderer(new AccountPolish());
         Accounts.setListData(user.GetAccountsPolish().toArray());
         Accounts.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -216,7 +215,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null, "You do not have enough money", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if(user.WithdrawMoney(selectedAccount[0].GetID(),money)){
+            if(user.WithdrawMoneyPolish(selectedAccount[0].GetID(),money)){
                 JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
                 Accounts.setListData(user.GetAccountsPolish().toArray());
                 user.ShowUserData(panel);
@@ -267,7 +266,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                 JOptionPane.showMessageDialog(null,"Number must be bigger than 0");
                 return;
             }
-            if(user.AddAccount(id)){
+            if(user.AddAccount(id,"PLN")){
                 JOptionPane.showMessageDialog(null, "Account created successfully");
             }
             else{
@@ -349,6 +348,9 @@ public class GUI implements ActionListener, ListSelectionListener {
                     JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
                     Accounts.setListData(user.GetAccountsPolish().toArray());
                 }
+                Transaction transaction = new Transaction(ID1,ID2,Money,"transfer");
+                Objects.requireNonNull(user.FindAccount(ID1)).AddTransaction(transaction);
+                Objects.requireNonNull(user.FindAccount(ID2)).AddTransaction(transaction);
             }
         });
 
@@ -582,12 +584,12 @@ public class GUI implements ActionListener, ListSelectionListener {
         if(account!=null){
             Transactions.setListData(account.GetTransactions().toArray());
         }else{
-            List<Transaction> transactions= new ArrayList<>();
+            Set<Transaction> CTransactions = new HashSet<>();
             List<Account> accounts = user.GetAccountsPolish();
             for(Account a : accounts){
-                transactions.addAll(a.GetTransactions());
+                CTransactions.addAll(a.GetTransactions());
             }
-            Transactions.setListData(transactions.toArray());
+            Transactions.setListData(CTransactions.toArray());
         }
 
         JScrollPane scrollPane = new JScrollPane(Transactions);
@@ -642,14 +644,28 @@ public class GUI implements ActionListener, ListSelectionListener {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(10, 10, 10, 10);
 
+        JButton buttoncreate = new JButton("Create Account");
+        buttoncreate.setFont(buttoncreate.getFont().deriveFont(40f));
+//        buttoncreate.addActionListener(e -> {
+//
+//        });
+
+
         JList<Object> Currency = new JList<>();
         Currency.setFont(Currency.getFont().deriveFont(40f));
-        //Currency.setCellRenderer();
         Currency.setListData(Rates.entrySet().toArray());
 
         JScrollPane scrollPane = new JScrollPane(Currency);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(400, 1000));
+
+        JList<Object> Accounts = new JList<>();
+        Accounts.setFont(Accounts.getFont().deriveFont(40f));
+        Accounts.setListData(user.GetAccountsOther().toArray());
+
+        JScrollPane scrollPane2 = new JScrollPane(Accounts);
+        scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane2.setPreferredSize(new Dimension(400, 1000));
 
         JButton buttonlogout = new JButton("Log out");
         buttonlogout.setFont(buttonlogout.getFont().deriveFont(40f));
@@ -678,6 +694,10 @@ public class GUI implements ActionListener, ListSelectionListener {
         constraints.gridheight = 11;
         panel.add(scrollPane,constraints);
 
+        constraints.gridx = 3;
+        constraints.gridy = 0;
+        panel.add(scrollPane2,constraints);
+
         frame.add(panel,BorderLayout.WEST);
         frame.setVisible(true);
     }
@@ -692,17 +712,17 @@ public class GUI implements ActionListener, ListSelectionListener {
 
     }
 
-    static class AccountRenderer1 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
+    static class AccountPolish extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                       boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);// this is needed to be able to chose Account and have the same formatting i have set
             Account account = (Account) value;
-            label.setText("Account ID: " + account.GetID() + ", Money: " + account.GetMoney());
+            label.setText(account.GetCurrency()+", ID: " + account.GetID() + ", Money: " + account.GetMoney());
             return label;
         }
-
     }
+
 
     static class AccountRenderer2 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
         @Override
