@@ -11,7 +11,7 @@ public class User {
     private final String password;
     private int age;
     private double money;
-    private final List<Account> accountsOther;
+    private final List<Account> Accounts;
 
 
     public User(String name, String surname, String login, String password, int age) {
@@ -21,7 +21,7 @@ public class User {
         this.age = age;
         this.surname = surname;
         this.money = 0;
-        accountsOther = new ArrayList<>();
+        Accounts = new ArrayList<>();
     }
 
     public User(String name, String surname, String login, String password, int age, double money) {
@@ -31,7 +31,7 @@ public class User {
         this.age = age;
         this.surname = surname;
         this.money = money;
-        accountsOther = new ArrayList<>();
+        Accounts = new ArrayList<>();
     }
 
     public void SetMoney(double money) {
@@ -67,12 +67,12 @@ public class User {
             return false;
         }
         Account account = new Account(ID, currency);
-        accountsOther.add(account);
+        Accounts.add(account);
         return true;
     }
 
     public @Nullable Account FindAccount(int ID) {
-        for (Account account : accountsOther) {
+        for (Account account : Accounts) {
             if (account.GetID() == ID) {
                 return account;
             }
@@ -109,7 +109,7 @@ public class User {
             JOptionPane.showMessageDialog(null, "You can't close account with money on it", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        accountsOther.remove(FindAccount(ID));
+        Accounts.remove(FindAccount(ID));
         return true;
 
     }
@@ -119,19 +119,26 @@ public class User {
     }
 
     public List<Account> GetAccountsPolish() {
-        List<Account> polishAccounts = new ArrayList<>();
+        List<Account> accounts = new ArrayList<>();
 
-        for (Account account : accountsOther) {
+        for (Account account : Accounts) {
             if (account.GetCurrency().equals("PLN")) {
-                polishAccounts.add(account);
+                accounts.add(account);
             }
         }
 
-        return polishAccounts;
+        return accounts;
     }
 
     public List<Account> GetAccountsOther(){
-        return accountsOther;
+        List<Account> accounts = new ArrayList<>();
+
+        for (Account account : Accounts) {
+            if (! account.GetCurrency().equals("PLN")) {
+                accounts.add(account);
+            }
+        }
+        return accounts;
     }
 
     public void ShowUserData(JPanel panel){

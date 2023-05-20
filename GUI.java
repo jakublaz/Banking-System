@@ -6,6 +6,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -37,7 +38,7 @@ public class GUI implements ActionListener, ListSelectionListener {
         CreateUser("a","a","a","a",18); //just for testing
         User a = Users.get(0);
         a.AddAccount(1,"PLN");
-        a.AddAccount(2,"ZL");
+        a.AddAccount(2,"USD");
 
         //CreateGUI_Login();
         CreateGUI_MainMenu(a);
@@ -182,9 +183,10 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         final Account[] selectedAccount = new Account[1];
 
+
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
-        Accounts.setCellRenderer(new AccountPolish());
+        Accounts.setCellRenderer(new AccountsCellRenderer());
         Accounts.setListData(user.GetAccountsPolish().toArray());
         Accounts.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -580,7 +582,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         JList<Object> Transactions = new JList<>();
         Transactions.setFont(Transactions.getFont().deriveFont(40f));
-        Transactions.setCellRenderer(new AccountRenderer2());
+        Transactions.setCellRenderer(new TransactionHistoryCellRenderer());
         if(account!=null){
             Transactions.setListData(account.GetTransactions().toArray());
         }else{
@@ -639,21 +641,25 @@ public class GUI implements ActionListener, ListSelectionListener {
         frame.setLayout(new BorderLayout());
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        final Account[] selectedAccount = new Account[1];
+        final double[] price = new double[1];
+        final String[] currency = new String[1];
+
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(10, 10, 10, 10);
 
-        JButton buttoncreate = new JButton("Create Account");
-        buttoncreate.setFont(buttoncreate.getFont().deriveFont(40f));
-//        buttoncreate.addActionListener(e -> {
-//
-//        });
-
-
         JList<Object> Currency = new JList<>();
         Currency.setFont(Currency.getFont().deriveFont(40f));
         Currency.setListData(Rates.entrySet().toArray());
+        Currency.addListSelectionListener(e -> {
+            if(!e.getValueIsAdjusting()){
+                String [] split = Currency.getSelectedValue().toString().split("=");
+                currency[0] = split[0];
+                price[0] = Double.parseDouble(split[1]);
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(Currency);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -662,10 +668,36 @@ public class GUI implements ActionListener, ListSelectionListener {
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
         Accounts.setListData(user.GetAccountsOther().toArray());
+        Accounts.setCellRenderer(new AccountsCellRenderer());
+        Accounts.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                selectedAccount[0] = (Account) Accounts.getSelectedValue();
+            }
+        });
 
         JScrollPane scrollPane2 = new JScrollPane(Accounts);
         scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane2.setPreferredSize(new Dimension(400, 1000));
+        scrollPane2.setPreferredSize(new Dimension(600, 1000));
+
+        JButton buttoncreateAccount = new JButton("Create Account");
+        buttoncreateAccount.setFont(buttoncreateAccount.getFont().deriveFont(40f));
+        buttoncreateAccount.addActionListener(e -> {
+            JTextField id = new JTextField();
+            JTextField jcurrency = new JTextField();
+            Object[] message = {
+                    "Tell the id", id,
+                    "Tell the currency",jcurrency
+            };
+            int decision = JOptionPane.showConfirmDialog(null,message,"Create Account",JOptionPane.OK_CANCEL_OPTION);
+            if(decision == JOptionPane.OK_OPTION){
+                if(id.getText().isEmpty() || jcurrency.getText().isEmpty()){
+                    JOptionPane.showMessageDialog(null,"Something is empty");
+                    return;
+                }
+                user.AddAccount(Integer.parseInt(id.getText()),jcurrency.getText());
+                Accounts.setListData(user.GetAccountsOther().toArray());
+            }
+        });
 
         JButton buttonlogout = new JButton("Log out");
         buttonlogout.setFont(buttonlogout.getFont().deriveFont(40f));
@@ -680,6 +712,10 @@ public class GUI implements ActionListener, ListSelectionListener {
             frame.dispose();
             CreateGUI_MainMenu(user);
         });
+
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        panel.add(buttoncreateAccount,constraints);
 
         constraints.gridx = 1;
         constraints.gridy = 8;
@@ -712,7 +748,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
     }
 
-    static class AccountPolish extends DefaultListCellRenderer {
+    static class AccountsCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                       boolean isSelected, boolean cellHasFocus) {
@@ -724,7 +760,7 @@ public class GUI implements ActionListener, ListSelectionListener {
     }
 
 
-    static class AccountRenderer2 extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
+    static class TransactionHistoryCellRenderer extends DefaultListCellRenderer {      // here I change how the things will he displayed  on the  scrollpane
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                       boolean isSelected, boolean cellHasFocus) {
