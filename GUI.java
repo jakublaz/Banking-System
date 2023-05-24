@@ -1,16 +1,18 @@
 import org.jetbrains.annotations.Nullable;
-import javax.swing.*;
+
 import javax.swing.Timer;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class GUI implements ActionListener, ListSelectionListener {
     private static final CurrencyExchange c = new CurrencyExchange();
@@ -667,7 +669,7 @@ public class GUI implements ActionListener, ListSelectionListener {
 
         JList<Object> Accounts = new JList<>();
         Accounts.setFont(Accounts.getFont().deriveFont(40f));
-        Accounts.setListData(user.GetAccountsOther().toArray());
+        Accounts.setListData(user.GetAccountsAll().toArray());
         Accounts.setCellRenderer(new AccountsCellRenderer());
         Accounts.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -695,7 +697,38 @@ public class GUI implements ActionListener, ListSelectionListener {
                     return;
                 }
                 user.AddAccount(Integer.parseInt(id.getText()),jcurrency.getText());
-                Accounts.setListData(user.GetAccountsOther().toArray());
+                Accounts.setListData(user.GetAccountsAll().toArray());
+            }
+        });
+
+        List<Account> display = new ArrayList<>();
+
+        JTextField textsearch = new JTextField();
+        textsearch.setFont(textsearch.getFont().deriveFont(40f));
+        textsearch.addActionListener(e -> {
+            FilterText(user,textsearch, display);
+            Accounts.setListData(display.toArray());
+            panel.revalidate();
+            panel.repaint();
+        });
+
+        textsearch.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                FilterText(user,textsearch, display);
+                Accounts.setListData(display.toArray());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                FilterText(user,textsearch, display);
+                Accounts.setListData(display.toArray());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                FilterText(user,textsearch, display);
+                Accounts.setListData(display.toArray());
             }
         });
 
@@ -725,17 +758,33 @@ public class GUI implements ActionListener, ListSelectionListener {
         constraints.gridy = 9;
         panel.add(buttonlogout,constraints);
 
-        constraints.gridx = 0;
+        constraints.gridx = 3;
         constraints.gridy = 0;
+        panel.add(textsearch,constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
         constraints.gridheight = 11;
         panel.add(scrollPane,constraints);
 
         constraints.gridx = 3;
-        constraints.gridy = 0;
+        constraints.gridy = 1;
         panel.add(scrollPane2,constraints);
 
         frame.add(panel,BorderLayout.WEST);
         frame.setVisible(true);
+    }
+
+    private static void FilterText(User user, JTextField search, List<Account> show){
+        String query = search.getText().toUpperCase();
+
+        show.clear();
+
+        for(Account a : user.GetAccountsAll()){
+            if(a.GetCurrency().contains(query)){
+                show.add(a);
+            }
+        }
     }
 
     private static void UpdateRates(){

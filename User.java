@@ -130,6 +130,10 @@ public class User {
         return accounts;
     }
 
+    public List<Account> GetAccountsAll(){
+        return Accounts;
+    }
+
     public List<Account> GetAccountsOther(){
         List<Account> accounts = new ArrayList<>();
 
