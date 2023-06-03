@@ -6,6 +6,8 @@ public class Transaction {
     final double money;
     final String type;
 
+    // dodać currency
+
     public Transaction(int idA1, int idA2, double money, String type){
         ID = ID_main++;
         ID_A1 = idA1;

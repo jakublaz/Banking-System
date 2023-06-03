@@ -652,6 +652,51 @@ public class GUI implements ActionListener, ListSelectionListener {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(10, 10, 10, 10);
 
+        JLabel labelname = new JLabel("Name: " + user.GetName());
+        labelname.setName("labelname");
+        JLabel labelsurname = new JLabel("Surname: " + user.GetSurname());
+        labelsurname.setName("labelsurname");
+        JLabel labelage =  new JLabel("Age: " + user.GetAge());
+        labelage.setName("labelage");
+        JLabel labelmoney = new JLabel("Money: " + user.GetMoney()+ " PLN");
+        labelmoney.setName("labelmoney");
+
+        JLabel timelabel = new JLabel();
+        timelabel.setName("timelabel");
+        timelabel.setFont(timelabel.getFont().deriveFont(40f));
+
+        Timer timer = new Timer(0, e -> {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formattedDateTime = currentDateTime.format(formatter);
+            timelabel.setText(formattedDateTime);
+        });
+        timer.start();
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        panel.add(timelabel,constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        labelname.setFont(labelname.getFont().deriveFont(40f));
+        panel.add(labelname, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        labelsurname.setFont(labelsurname.getFont().deriveFont(40f));
+        panel.add(labelsurname, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        labelage.setFont(labelage.getFont().deriveFont(40f));
+        panel.add(labelage, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        labelmoney.setFont(labelmoney.getFont().deriveFont(40f));
+        panel.add(labelmoney, constraints);
+
         JList<Object> Currency = new JList<>();
         Currency.setFont(Currency.getFont().deriveFont(40f));
         Currency.setListData(Rates.entrySet().toArray());
@@ -696,7 +741,7 @@ public class GUI implements ActionListener, ListSelectionListener {
                     JOptionPane.showMessageDialog(null,"Something is empty");
                     return;
                 }
-                user.AddAccount(Integer.parseInt(id.getText()),jcurrency.getText());
+                user.AddAccount(Integer.parseInt(id.getText()),jcurrency.getText().toUpperCase());
                 Accounts.setListData(user.GetAccountsAll().toArray());
             }
         });
@@ -732,6 +777,34 @@ public class GUI implements ActionListener, ListSelectionListener {
             }
         });
 
+        JButton buttondeposit = new JButton("Deposit");
+        buttondeposit.setFont(buttondeposit.getFont().deriveFont(40f));
+        buttondeposit.addActionListener(e -> {
+            if(selectedAccount[0] == null){
+                JOptionPane.showMessageDialog(null,"Select an account");
+                return;
+            }
+            JTextField amount = new JTextField();
+            Object[] message = {
+                    "Tell the amount", amount,
+            };
+            int decision = JOptionPane.showConfirmDialog(null,message,"Deposit",JOptionPane.OK_CANCEL_OPTION);
+            if(decision == JOptionPane.OK_OPTION){
+                if(amount.getText().isEmpty()){
+                    JOptionPane.showMessageDialog(null,"Something is empty");
+                    return;
+                }
+                selectedAccount[0].SetMoney(selectedAccount[0].GetMoney() + Double.parseDouble(amount.getText()));
+                user.SetMoney(user.GetMoney() + Convert(Double.parseDouble(amount.getText()),selectedAccount[0].GetCurrency(),"PLN"));
+                user.ShowUserData(panel);
+                frame.add(panel, BorderLayout.CENTER);
+                frame.revalidate();
+                frame.repaint();
+                Accounts.setListData(user.GetAccountsAll().toArray());
+                JOptionPane.showMessageDialog(null, "Money has been transfered", "Information", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
         JButton buttonlogout = new JButton("Log out");
         buttonlogout.setFont(buttonlogout.getFont().deriveFont(40f));
         buttonlogout.addActionListener(e -> {
@@ -746,9 +819,14 @@ public class GUI implements ActionListener, ListSelectionListener {
             CreateGUI_MainMenu(user);
         });
 
+
         constraints.gridx = 1;
         constraints.gridy = 0;
         panel.add(buttoncreateAccount,constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        panel.add(buttondeposit,constraints);
 
         constraints.gridx = 1;
         constraints.gridy = 8;
@@ -758,20 +836,20 @@ public class GUI implements ActionListener, ListSelectionListener {
         constraints.gridy = 9;
         panel.add(buttonlogout,constraints);
 
-        constraints.gridx = 3;
+        constraints.gridx = 2;
         constraints.gridy = 0;
         panel.add(textsearch,constraints);
 
-        constraints.gridx = 0;
+        constraints.gridx = 3;
         constraints.gridy = 1;
         constraints.gridheight = 11;
         panel.add(scrollPane,constraints);
 
-        constraints.gridx = 3;
+        constraints.gridx = 2;
         constraints.gridy = 1;
         panel.add(scrollPane2,constraints);
 
-        frame.add(panel,BorderLayout.WEST);
+        frame.add(panel,BorderLayout.CENTER);
         frame.setVisible(true);
     }
 
@@ -790,6 +868,10 @@ public class GUI implements ActionListener, ListSelectionListener {
     private static void UpdateRates(){
         c.UpdateRates();
         Rates = c.GetRates();
+    }
+
+    private static double Convert(double amount, String from, String to){
+        return c.Convert(amount,from,to);
     }
 
     @Override

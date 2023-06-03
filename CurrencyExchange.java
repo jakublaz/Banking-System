@@ -8,6 +8,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -79,5 +81,12 @@ public class CurrencyExchange {
             double rate = Rates.get(currency);
             System.out.println(currency + ": " + rate);
         }
+    }
+
+    public double Convert(double amount, String from, String to){
+        double fromRate = Rates.get(from);
+        double toRate = Rates.get(to);
+        BigDecimal roundedNumber = new BigDecimal(amount * (toRate/fromRate)).setScale(2, RoundingMode.HALF_UP);
+        return roundedNumber.doubleValue();
     }
 }
