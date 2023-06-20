@@ -697,6 +697,8 @@ public class GUI implements ActionListener, ListSelectionListener {
         labelmoney.setFont(labelmoney.getFont().deriveFont(40f));
         panel.add(labelmoney, constraints);
 
+        List<Account> display = new ArrayList<>();
+
         JList<Object> Currency = new JList<>();
         Currency.setFont(Currency.getFont().deriveFont(40f));
         Currency.setListData(Rates.entrySet().toArray());
@@ -741,12 +743,26 @@ public class GUI implements ActionListener, ListSelectionListener {
                     JOptionPane.showMessageDialog(null,"Something is empty");
                     return;
                 }
+                if(!id.getText().matches("[0-9]+")){
+                    JOptionPane.showMessageDialog(null,"Id must be a number");
+                    return;
+                }
+                if(!jcurrency.getText().matches("[a-zA-Z]+")){
+                    JOptionPane.showMessageDialog(null,"Currency must be a string");
+                    return;
+                }
+                FilterText(user,jcurrency, display);
+                if(display.isEmpty()){
+                    JOptionPane.showMessageDialog(null,"Currency not found");
+                    return;
+                }
+
                 user.AddAccount(Integer.parseInt(id.getText()),jcurrency.getText().toUpperCase());
                 Accounts.setListData(user.GetAccountsAll().toArray());
             }
         });
 
-        List<Account> display = new ArrayList<>();
+
 
         JTextField textsearch = new JTextField();
         textsearch.setFont(textsearch.getFont().deriveFont(40f));
